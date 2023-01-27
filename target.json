@@ -17,10 +17,11 @@
       "--max-memory=262144",
       "--stack-first",
       "--import-memory",
-      "-zstack-size=8192",
+      "-zstack-size=65536",
       "--global-base=98304",
       "--strip-all",
-      "--no-entry"
+      "--no-entry",
+      "--export-table"
     ],
     "wasm-abi": "js"
   }
