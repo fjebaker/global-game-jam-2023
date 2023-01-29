@@ -1,4 +1,4 @@
-// some parts lifted from, others inspired by: https://github.com/sorucoder/tic80/blob/master/tic80.go
+// some functions lifted from, others inspired by: https://github.com/sorucoder/tic80/blob/master/tic80.go
 package tic80
 
 import (
