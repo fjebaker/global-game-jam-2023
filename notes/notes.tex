@@ -1,0 +1,1109 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage{geometry}
+\geometry{
+	hmargin=2.1cm,
+	vmargin=1.85cm,
+	a4paper,
+	%showframe,
+}
+\usepackage{paracol}
+\columnratio{0.55,0.45}
+\setlength\columnsep{0.03\textwidth}
+
+\usepackage{enumitem}
+
+\usepackage[usenames,svgnames]{xcolor}
+\usepackage{colortbl}
+\usepackage{color}
+\definecolor{slateblue}{rgb}{0.17,0.22,0.34}
+\definecolor{headings}{rgb}{0.415,0.631,0.584}
+
+\definecolor{text}{HTML}{2b2b2b}
+\definecolor{shade}{HTML}{F5DD9D}
+\definecolor{linkcolor}{rgb}{0.862,0.572,0.592}
+\color{text}
+\newcommand{\chline}{\arrayrulecolor{headings}\hline\arrayrulecolor{headings}}
+\newcommand{\crule}[2]{\textcolor{headings}{\rule{#1}{#2}}}
+
+\usepackage{hyperref}
+\hypersetup{colorlinks, breaklinks, urlcolor=linkcolor, linkcolor=linkcolor, linktoc=all}
+
+\makeatletter
+\renewcommand{\maketitle}{
+\bgroup\setlength{\parindent}{0em}
+  {\scshape\huge\color{headings} \@title}
+  \vspace*{6pt}
+  {\color{headings}\hrule depth 0.8pt \relax}
+  \vspace*{6pt}
+  \hspace*{2em}{\@author \hfill \@date\hspace*{2em}}\\[1em]
+\egroup
+}
+\makeatother
+
+\usepackage[nobottomtitles*]{titlesec}
+\renewcommand{\bottomtitlespace}{0.1\textheight}
+\titleformat{\section}
+    {\color{headings}\scshape\Large\raggedright}
+    {\thesection}
+    {1em}
+    {}
+    [\color{headings}\titlerule]
+\titlespacing{\section}
+    {0pt}
+    {0pt}
+    {1em}
+\titleformat{\subsection}
+    {\color{headings}\scshape\large\raggedright}
+    {\thesubsection}
+    {1em}
+    {}
+\renewenvironment{abstract}
+    {}
+    {
+    \begin{quote}
+        \noindent
+    \end{quote}
+    }
+
+\usepackage{tcolorbox}
+\usepackage{listings}
+\usepackage{listings-golang}
+\lstset{
+    frame=single,
+    frameround=tttt,
+    xleftmargin=1.3em,
+    xrightmargin=1.3em,
+    aboveskip=1mm,
+    belowskip=3mm,
+    backgroundcolor=\color{gray!5},
+    showstringspaces=false,
+    columns=flexible,
+    basicstyle={\small\ttfamily},
+    numbers=none,
+    breaklines=true,
+    breakatwhitespace=true,
+    tabsize=4,
+    keywordstyle=\color{cyan},
+    stringstyle=\color{green!80!black},
+    commentstyle=\color{brown!60},
+    language=Golang,
+}
+
+\usepackage{environ}
+
+\title{\scshape Go notes for TIC-80}
+\author{Fergus Baker}
+
+\newcommand{\tinygo}{\texttt{tinygo}\,}
+\newcommand{\WASM}{\texttt{WASM}\,}
+\newcommand{\fullref}[1]{\hyperref[{#1}]{\ref{#1} \nameref{#1}}}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+    Notes for using Go with TIC-80 by targeting WASM with \tinygo.
+\end{abstract}
+
+\begingroup
+\color{linkcolor}
+\tableofcontents
+\endgroup
+\vspace{2em}
+
+% \pagebreak
+
+
+\section{Language overview}
+
+\subsection{Types}
+
+See also \fullref{s_interfaces} concerning \textit{type assertions}.
+\\
+
+\columnratio{0.4}
+\begin{paracol}{2}
+
+\noindent Go supports the primitives listed on the right hand side.
+
+\switchcolumn
+\begin{lstlisting}
+// integral
+int, int8, int16, int32, int64
+uint, uint8, uint16, uint32, uint64, uintptr
+// floating point
+float32, float64
+complex64, complex128
+//other
+string, bool
+// aliases
+byte // uint8
+rune // int32 for unicode
+\end{lstlisting}
+
+\switchcolumn*
+\noindent Types may be converted to some new type \lstinline{T} using \lstinline|T(v)| .
+\\
+\switchcolumn
+\switchcolumn*
+\noindent Type aliases may be defined using the \lstinline|type| keyword.
+
+\switchcolumn
+\begin{lstlisting}
+type MyFloat float64
+\end{lstlisting}
+
+\end{paracol}
+
+\subsection{Declarations}
+
+\columnratio{0.45}
+\begin{paracol}{2}
+\noindent Variables may either be explicitly typed or inferred. Constants may be inferred, and support arbitrary precision until coerced.
+
+\switchcolumn
+
+\begin{lstlisting}
+// explicit type
+var i int
+// explicit type initialized
+var i int = 1
+// implicit type
+i := 1
+// constant
+const Pi = 3.14
+\end{lstlisting}
+
+
+\switchcolumn*
+
+\noindent Pointers are either declared to point to an array or a variable. References can be taken with the \lstinline{&} operator.
+
+\switchcolumn
+
+\begin{lstlisting}
+// pointer to array
+var a []int
+x = a[1]
+// pointer to type
+var p *int 
+// dereference
+x = *p
+// reference
+q := &x
+\end{lstlisting}
+
+\switchcolumn*
+
+\noindent The allocation primatives are \lstinline|make| and \lstinline|new|, and apply to different types. \lstinline|new| allocates and zeros memory, returning a \textbf{pointer} \lstinline|*T|. The keyword \lstinline|make| is reserved only for slices, maps, and channels, and \textbf{does not} return a pointer.
+\\
+
+\switchcolumn
+
+\begin{lstlisting}
+// p is *MyCustomType
+p := new(MyCustomType)
+// v is MyCustomType
+var v MyCustomType
+\end{lstlisting}
+
+\end{paracol}
+
+
+\subsection{Structs}
+
+\columnratio{0.45}
+\begin{paracol}{2}
+Structs are a collection of fields, which are \lstinline|{}| initialized. Pointers to structs have a free level of indirection, thus \lstinline{(*p).x} is the same as \lstinline{p.x}. Uninitialized fields are implicitly zero.
+\switchcolumn    
+
+
+\begin{lstlisting}
+type Vertex struct {
+    X int
+    Y int
+}
+v1 := Vertex{1, 2}
+v2 := Vertex{Y: 2} // X implicitly 0
+\end{lstlisting}
+
+\switchcolumn*
+
+\noindent Go implements the concept of \textbf{constructors as factories}, which is conventionally the name of the struct prefixed with \lstinline|New|.
+
+\switchcolumn
+\begin{lstlisting}
+func NewVertex(x, y int) NewVertex {
+    return NewVertex{x, y}
+}
+\end{lstlisting}
+
+\end{paracol}
+
+\subsection{Functions}
+
+\noindent \textbf{Functions} must be explicitly typed and support multiple (named) return types.
+Function are first class citizens and may be assigned to variables. Functions support closure capture.
+\\
+
+\begin{lstlisting}
+// function type
+func(int32, int32) int32
+
+// anonymous: a and b have same type
+adder := func(a, b int32) int32 {return a + b}
+
+// single return type
+func foo(a int32, b int32) int32 {
+    return a + b
+}
+
+// multiple returns
+func mfoo(a, b int32) (int32, int32) {
+    return a, b
+}
+
+// multiple returns named
+func bar(a int32, b int32) (out1 int32, out2 int32) {
+    out1 = a
+    out2 = b
+    return
+}
+
+// closure capture
+func adder() func(int) int {
+    sum := 0
+    return func(x int) int {
+        sum += x
+        return sum
+    }
+}
+\end{lstlisting}
+
+\begin{paracol}{2}
+\noindent The address of a \textbf{local variable} may be returned without issue: the storage of a variable survives the function context. Referencing an r-value \textbf{allocates a new} instance.
+
+\switchcolumn
+
+\begin{lstlisting}
+func NewFile(fd int, name string) *File {
+    if fd < 0 {
+        return nil
+    }
+    // new instance each time it is called
+    return &File{fd: fd, name:name}
+}
+\end{lstlisting}
+
+\switchcolumn*
+\end{paracol}
+
+\subsection{Methods}
+
+\begin{paracol}{2}
+Methods may be defined on \textbf{types} (such as custom structs). Methods have a special \textbf{receiver} argument.
+
+\switchcolumn
+\begin{lstlisting}
+func (v Vertex) Abs() float64 {
+    return math.Sqrt(v.X * v.X + v.Y * v.Y)
+}
+// invocation
+v.Abs()
+\end{lstlisting}
+
+\switchcolumn*
+
+\noindent For methods to be mutating they must be declared with \textbf{pointer receivers}.
+
+\switchcolumn
+\begin{lstlisting}
+func (v *Vertex) Scale(f float64) {
+    v.X = v.X * f
+    v.Y = v.Y * f
+}
+\end{lstlisting}
+
+
+\end{paracol}
+
+\subsection{Arrays}
+
+\begin{paracol}{2}
+
+Go arrays are 0 indexed. Fixed size arrays are declared with \lstinline{[n]T} syntax. Slices are dynamically sized references to arrays, declared with \lstinline{[]T}.
+Slices may be literal.
+
+When slicing, the bounds are implicitly the start and end if excluded.
+\switchcolumn    
+
+\begin{lstlisting}
+// array of 10 ints
+var a [10]int
+// slice to 3 ints and indices 1, 2, 3
+b := a[1:4]
+// slice literal
+c := []bool{false, false, false}
+\end{lstlisting}
+
+
+\switchcolumn*
+\noindent The \lstinline{len} of a slice is the number of elements it contains, whereas the \lstinline{cap} is the number of elements in the underlying array.
+
+\lstinline{nil} slices are slices with length and capacity equal to 0.
+
+\switchcolumn    
+
+\begin{lstlisting}
+s := []int{2, 3, 5, 7, 11, 13}
+// len=6 cap=6 [2 3 5 7 11 13]
+s = s[:0]
+// len=0 cap=6 []
+s = s[:4]
+// len=4 cap=6 [2 3 5 7]
+s = s[2:]
+// len=2 cap=4 [5 7]
+\end{lstlisting}
+
+
+\switchcolumn*
+\noindent Slices may be \textbf{dynamically allocated} with the \lstinline|make| function, which allocates and zeros out an array.\\
+
+\switchcolumn
+
+\begin{lstlisting}
+// len 5, cap 5
+a := make([]int, 5)
+// len 0, cap 5
+b := make([]int, 0, 5)
+\end{lstlisting}
+
+
+\end{paracol}
+
+\subsection{Maps}
+\begin{paracol}{2}
+
+A map is a key-value store. The zero value of a map is \lstinline|nil|. Maps are dynamically allocated and must be initialized with \lstinline|make|.
+    
+\switchcolumn
+\begin{lstlisting}
+// variable declaration
+var m = map[string]int
+// init
+m = make(map[string]int)
+\end{lstlisting}
+
+\switchcolumn*
+\noindent Maps may be \textbf{mutated} with the usual \lstinline|[]| syntax. When an entry is read, the map returns both the value an an \lstinline|ok| boolean. If the key is not in the map, the value is a zero and \lstinline|ok| is \lstinline|false|.
+
+\switchcolumn
+\begin{lstlisting}
+// add entry
+m["Hello World"] = 42
+// read entry
+value, ok := m["Hello World"]
+// remove
+delete(m, "Hello World")
+\end{lstlisting}
+\switchcolumn*
+\noindent Map literals may also be declared.
+
+\switchcolumn
+\begin{lstlisting}
+// map literal
+ml = map[string]int{
+    "Hello": 13,
+    "World": 12,
+}
+\end{lstlisting}
+
+\end{paracol}
+
+\subsection{Control flow}
+
+See also \fullref{s_interfaces} concerning \textit{type switches} for control flow.
+\\
+\columnratio{0.5}
+\begin{paracol}{2}
+\noindent A \textbf{defer} statement defers the execution of a function until the surrounding function returns. Defers are executed in LIFO order.
+\\
+\switchcolumn
+
+
+\begin{lstlisting}
+defer fmt.Println("world")
+fmt.Println("hello")
+\end{lstlisting}
+
+
+
+\switchcolumn*
+\noindent The \textbf{for} loop has an initializer, a condition, and a post statement, with the initializer and post statement being optional.
+
+\switchcolumn
+
+\begin{lstlisting}
+for i := 0; i < 10: i++ {
+    // ...
+}
+\end{lstlisting}
+
+
+\switchcolumn*
+
+\noindent The \textbf{while} loops have the same syntax, though the semi colons may be dropped.
+
+\switchcolumn
+
+\begin{lstlisting}
+// while
+for i < 10 {
+    // ...
+}
+\end{lstlisting}
+
+
+\switchcolumn*
+\noindent Infinite loops are created without any arguments.
+
+\switchcolumn
+
+\begin{lstlisting}
+// infinite
+for {
+    // ...
+}
+\end{lstlisting}
+
+
+\switchcolumn*
+
+\noindent For loops may also be used with \textbf{range indexing}, implicitly enumerating the array or slice.
+
+\switchcolumn
+
+\begin{lstlisting}
+var pow = []int{1, 2, 4, 8}
+for i, v := range pow {
+    // ...
+}
+\end{lstlisting}
+
+
+
+\switchcolumn*
+
+\noindent \textbf{If} statements have need not have brackets, and support optional capture initializers. The variable in the initializer only exists for the scope of the `if' block.
+
+\switchcolumn
+
+\begin{lstlisting}
+if some_condition {
+    // ...
+} else {
+    // ...
+}
+// with a capture init
+if y := a + b; y < 10 {
+    return y
+}
+\end{lstlisting}
+
+
+\switchcolumn*
+
+\noindent The \textbf{switch} statement can be used on any primitive. Cases do not have fall-through, and the cases need not be constants.
+
+\switchcolumn
+
+\begin{lstlisting}
+switch os := runtime.GOOS; os {
+case "darwin":
+    // ...
+case "linux":
+    // ...
+default:
+    // ...
+}
+\end{lstlisting}
+
+
+\switchcolumn*
+\noindent In the example to the right, \lstinline{f()} is not invoked unless \lstinline{i != 0}.
+A switch statement without a condition is the same as \lstinline{switch true}.
+
+\switchcolumn
+
+\begin{lstlisting}
+switch i {
+case 0: 
+    // ...
+case f():
+    // ...
+}
+\end{lstlisting}
+
+\end{paracol}
+
+\subsection{Interfaces}\label{s_interfaces}
+
+From what I can tell, the Go-ism for interface names is to end the interface with \lstinline|-er|, e.g. \lstinline|fmt.Stringer|.
+\\
+
+\columnratio{0.45}
+\begin{paracol}{2}
+
+Interfaces are \textbf{types} that define a set of method signatures. They may be thought of as a tuple of \lstinline|(value, type)|
+
+\switchcolumn
+\begin{lstlisting}
+type Absoluter interface {
+    Abs() float64
+}
+\end{lstlisting}
+\switchcolumn*
+
+\noindent The \textbf{nil interface} is the interface which implement no methods, such as primitives. It is declared with \lstinline|interface{}|
+\\
+\switchcolumn
+
+\begin{lstlisting}
+var i interface{}
+\end{lstlisting}
+
+\switchcolumn*
+
+\noindent Variables of instance type may be declared and instantiated by any type which implements the interface.
+
+\switchcolumn
+\begin{lstlisting}
+type SomeFloat float64
+func (f SomeFloat) Abs() float64 {
+    // ...
+}
+// instantiate interface
+var a Absoluter
+a = SomeFloat(1.0)
+\end{lstlisting}
+
+\switchcolumn*
+
+\noindent Care must be taken when dealing with pointers. In this example, \lstinline|*Vector| \textit{does} implement the interface, but \lstinline|Vector| \textit{does not}.
+
+\switchcolumn
+
+\begin{lstlisting}
+type Vector struct {
+    X, Y float64
+}
+func (v *Vector) Abs() float64 {
+    // ...
+}
+// ok
+v := Vector{}
+var a Absoluter = &v
+// error
+a = v 
+\end{lstlisting}
+\switchcolumn*
+
+\noindent \textbf{Type assertions} may be used to access an interfaces concrete value. It returns a \lstinline|(value, ok)| tuple, where the \lstinline|ok| boolean denotes whether the type assertion was true. The syntax is \lstinline|t, ok := i.(T)| to assert type \lstinline|T|.
+
+\switchcolumn
+\begin{lstlisting}
+var i interface{} = "Hello World"
+// ok is true
+s, ok := i.(string) 
+// ok is false, v is 0.0
+f, ok := i.(float64)
+\end{lstlisting}
+\switchcolumn*
+
+\noindent Switches may also be used on interfaces as control flow with \textbf{type switches}.
+
+\switchcolumn
+\begin{lstlisting}
+switch v := i.(type) {
+case T:
+    // here v has type T
+case S:
+    // here v has type S
+default:
+    // no match; here v has the same type as i
+}
+\end{lstlisting}
+
+\switchcolumn*
+
+\noindent Interfaces may \textbf{embed} or extend existing interfaces by including them in the definition.
+
+\switchcolumn
+
+\begin{lstlisting}
+type A interface {
+    GetName() string
+}
+// embeds A
+type B interface {
+    A
+    SetValue(v int)
+}
+\end{lstlisting}
+
+\switchcolumn*
+
+\noindent Go differentiates between \textbf{basic} and \textbf{non-basic} interfaces, where basic interfaces may be entirely implemented and initialized, whereas non-basic interfaces are used primarily in \fullref{sec:generics}.
+
+Non-basic interfaces are interfaces with \textbf{type-unions} (the pipe operator), or which embed other non-basic interfaces.
+
+\switchcolumn
+
+\begin{lstlisting}
+// the above A and B are both basic
+// the below C and D are non-basic
+type C interface {
+    int | int64 | float64
+}
+type D interface {
+    C
+    Content() string
+}
+\end{lstlisting}
+
+\end{paracol}
+
+\subsection{Errors}
+
+\begin{paracol}{2}
+
+The error type is an interfaces that implements the \lstinline|Error() string| method. 
+
+\switchcolumn
+
+\begin{lstlisting}
+type error interface {
+    Error() string
+}
+\end{lstlisting}
+
+\switchcolumn*
+
+Errors are normally returned in a tuple with the result. Errors are handled by testing \lstinline|err != nil|.
+
+\switchcolumn
+
+\begin{lstlisting}
+i, err := strconv.Atoi("42")
+if err != nil {
+    // ...
+    return
+}
+\end{lstlisting}
+
+\switchcolumn*
+
+\noindent Go also has \lstinline|panic| and \lstinline|recover|. The \lstinline|panic| keyword is reserved for errors that are ``unrecoverable'', and \lstinline|recover| is to recover from them. When a \lstinline|panic| is called, go immediately begins the stack unwind until it hits a \lstinline|recover|.
+
+\lstinline{recover} \textbf{always returns} \lstinline|nil| unless called from a deferred function.
+
+\switchcolumn
+
+\begin{lstlisting}
+func server(workChan <-chan *Work) {
+    for work := range workChan {
+        go safelyDo(work)
+    }
+}
+
+func safelyDo(work *Work) {
+    // deferred lambda
+    defer func() {
+        if err := recover(); err != nil {
+            log.Println("work failed:", err)
+        }
+    }()
+    do(work)
+}
+\end{lstlisting}
+
+\end{paracol}
+
+\subsection{Generics}\label{sec:generics}
+
+\begin{paracol}{2}
+
+Functions may accept \textbf{type parameters} for generics. This parameter appears in \lstinline|[]| before the functions arguments. The type parameter must fulfill a \lstinline|constraint|.
+  
+\switchcolumn
+\begin{lstlisting}
+// T must support == comparison
+func Index[T comparable](s []T, x T) int {
+    // ...
+}
+
+\end{lstlisting}
+\switchcolumn*
+\noindent Constraints may be defined through interfaces. The super-type of all interfaces is \lstinline|any|. The pipe syntax denotes type unions.
+
+\switchcolumn
+
+\begin{lstlisting}
+type Number interface {
+    int | int64 | float64
+}
+    
+\end{lstlisting}
+
+\end{paracol}
+
+\subsection{Exports and imports}
+\begin{paracol}{2}
+
+Exported functions from a package must begin with a capital letter. Packages which make use of \lstinline{helloworld} may only refer to \lstinline{helloworld.Foo}.
+
+\switchcolumn
+
+\begin{lstlisting}
+package helloworld
+// not exported
+func foo() {
+    // ....
+}
+// is exported
+func Foo() {
+    // ...
+}
+\end{lstlisting}
+
+\switchcolumn*
+
+\noindent Go also uses \textbf{compiler directives} in the form of annotated functions with \textbf{comments} to export or import symbols at link-time.
+
+\switchcolumn
+
+\begin{lstlisting}
+// link the symbol _start to the function Init
+//go:linkname Init _start
+func Init() 
+
+// import a function symbol
+//go:export
+func add(x, y int) int
+
+// export a function symbol
+//go:export
+func sub(x, y int) int {
+    return x - y
+}
+
+
+\end{lstlisting}
+
+\end{paracol}
+
+\section{Goroutines and concurrency}
+
+\noindent A \textbf{goroutine} is a lightweight thread that is managed by the runtime. The keyword \lstinline|go| is reserved for starting a new goroutine. They run in the same address space. The \lstinline|sync| package provides goroutine primatives.
+
+\subsection{Channels}
+
+\begin{paracol}{2}
+Channels are a typed pipe for IO, and may be used to send or receive with the \textbf{channel operator}, i.e. \lstinline|<-|. Channels are by default blocking to allow goroutines to synchronize without explicit locking mechanisms.
+
+\switchcolumn
+
+\begin{lstlisting}
+// initialize integer channel
+ch := make(chan int)
+// send 
+ch <- value
+// receive
+v := <- ch
+\end{lstlisting}
+
+\switchcolumn*
+
+\noindent Channels may be \textbf{buffered}, which means they have a fixed size and will result in a deadlock if trying to send to a full buffer.
+\\
+
+\switchcolumn
+\begin{lstlisting}
+// buffered channel with 100 elements
+ch := make(chan int, 100)
+\end{lstlisting}
+
+\switchcolumn*
+
+\noindent Channels may be \textbf{closed} to indicate no additional values will be sent. A second return argument indicates whether a channel is closed or not. It is not necessary to \textit{always} close channels, and should be used only to indicate no additional information.
+
+
+\switchcolumn
+
+\begin{lstlisting}
+ch := make(chan int)
+ch <- 10
+// close channel
+close(ch)
+// ok == false since channel closed
+v, ok := <- ch
+\end{lstlisting}
+\switchcolumn*
+
+\noindent The \lstinline|range| keyword may be used in a for-loop to read all values from a channel until closed.
+
+\switchcolumn
+\begin{lstlisting}
+// read until closed
+for i := range ch {
+    // ...
+}
+\end{lstlisting}
+\switchcolumn*
+
+\noindent The \lstinline|select| keyword is analogous to the \lstinline|switch| statement for waiting on multiple operations. The \lstinline|select| blocks execution until one of its cases can run, then executes that case. It is non-deterministic if multiple cases are ready simultaneously. The \lstinline|default| case is optional, and will run if no other cases are ready.
+
+\switchcolumn
+
+\begin{lstlisting}
+select {
+// will only run if ch not full
+case ch <- x:
+    x = x + 1
+// will run if can read from recv
+case <- recv:
+    fmt.Println("received")
+// optional default
+default:
+    fmt.Println("no operation)
+}
+\end{lstlisting}
+
+\end{paracol}
+
+\subsection{Example}
+
+Below is a concurrent example for summing numbers in an array:\\
+
+\begin{lstlisting}
+package main
+
+func sum(s []int, c chan int) {
+    sum := 0
+    for _, v := range s {
+        sum += v
+    }
+    c <- sum
+}
+
+func main() {
+    s := []int{7, 2, 8, -9, 4, 0}
+    // make a channel for io between goroutines
+    c := make(chan int)
+    // spawn two goroutines that sum different parts of s
+    go sum(s[:len(s)/2], c)
+    go sum(s[len(s)/2:], c)
+    // receive
+    x, y := <-c, <-c 
+}
+\end{lstlisting}
+
+\subsection{Mutexes}
+
+\columnratio{0.5}
+\begin{paracol}{2}
+
+The \lstinline|sync.Mutex| (mutual exclusion) can be used when multiple goroutines need to access the same resource without worrying about race conditions. The standard mutex supports \lstinline|Lock| and \lstinline|Unlock| methods.
+
+\switchcolumn
+
+\begin{lstlisting}
+mu := sync.Mutex()
+mu.Lock() 
+// practice is to defer unlocks
+defer mu.Unlock()
+\end{lstlisting}
+
+\end{paracol}
+
+\section{Common interfaces}
+
+\subsection{Readers and writers}
+
+\columnratio{0.45}
+\begin{paracol}{2}
+The \lstinline|io| package specifies a \lstinline|io.Reader| interface, which declares the \lstinline|Read| method.
+
+\switchcolumn
+
+\begin{lstlisting}
+// prototype
+func (T) Read(b []byte) (n int, err error)
+// example
+r := strings.NewReader("Hello, Reader!")
+buffer := make([]byte, 8)
+for {
+    n, err := r.Read(buffer)
+    // ...
+    if err == io.EOF {
+        break
+    }
+}
+\end{lstlisting}
+
+
+\end{paracol}
+
+\section{Standard patterns}
+
+\subsection{Errors and recovery}
+\begin{paracol}{2}
+
+\noindent Throw errors with \lstinline|panic| so that goroutines can handle and recover as needed.
+
+\switchcolumn
+
+\begin{lstlisting}
+func (s *S) error(err string) {
+    panic(Error(err))
+}
+
+func Runner(str string) (s *S, err error) {
+    s = new(S)
+    defer func() {
+        if e := recover(); e != nil {
+            // Clear return value.
+            regexp = nil    
+            // will re-panic cannot coerce
+            err = e.(Error) 
+        }
+    }()
+    // will panic if there is a call error
+    return s.Call(str), nil
+}
+\end{lstlisting}
+\end{paracol}
+
+\subsection{Parallelism}
+
+\begin{paracol}{2}
+\noindent Goroutines can be used for concurrency by initializing e.g. multiple channels. 
+
+\switchcolumn
+
+\begin{lstlisting}
+const numCPU = 4 // number of CPU cores
+
+func (v Vector) DoAll(u Vector) {
+    // buffered array
+    c := make(chan int, numCPU) 
+    fraction := len(v) / numCPU
+    for i := 0; i < numCPU; i++ {
+        go v.DoSome(
+            // lower index
+            i * fraction, 
+            // upper index
+            (i+1) * fraction, 
+            u, 
+            c
+        )
+    }
+    // drain the channel.
+    for i := 0; i < numCPU; i++ {
+        // wait for one task to complete
+        <-c 
+    }
+    // all done.
+}
+    
+\end{lstlisting}
+
+\switchcolumn*
+\end{paracol}
+
+\subsection{Enums}
+
+\begin{paracol}{2}
+Although Go does not have a concept of an enum, there is the builtin \lstinline|iota|, which is an automatically incrementing integer scoped to \lstinline|const| blocks with the initial value of 0. It can be used to quickly define monotonically increasing constants. \lstinline|iota| may also be used in expressions.
+
+\switchcolumn
+
+\begin{lstlisting}
+const (
+    A = 1
+    B  = 2
+    C  = 4
+)
+// becomes
+const (
+	A = iota + 1
+	B
+    _ // skip
+	C
+)
+\end{lstlisting}
+
+\end{paracol}
+
+\section{TIC-80 with \WASM}
+
+\noindent In order to use \WASM with the TIC-80, the TIC-80 executable must be compiled with \lstinline|-DBUILD_PRO=On|. The full setup proceedure is then
+\\
+
+\begin{lstlisting}[language=Bash]
+git clone "https://github.com/nesbox/TIC-80" 
+cd TIC-80/build
+# run cmake
+cmake .. -DBUILD_PRO=On
+make -j4
+# link binary
+sudo ln -s $(pwd)/bin/tic80 /usr/local/bin/tic80
+\end{lstlisting}
+
+\noindent Refer to the \href{https://github.com/nesbox/TIC-80}{TIC-80 readme} for full installation instructions for your OS.
+
+When executing a \lstinline|*.wasmp| script, we also require a setupfile with tile set, wave forms, etc. This is already included in the example repository (see \fullref{sec:tinygo-tic80}). We will generally use the CLI arguments \lstinline|--skip --fs .| to skip the startup animation and to mount the current working directory as the filesystem. 
+
+We load and start the \WASM executable with\\
+
+\begin{lstlisting}[language=Bash]
+load wasmdemo.wasmp 
+import binary cart.wasm 
+run
+\end{lstlisting}
+
+\section{Using \tinygo to target TIC-80}\label{sec:tinygo-tic80}
+
+We have an example repository, containing a Makefile for targetting TIC-80 with \tinygo in \href{https://github.com/fjebaker/global-game-jam-2023}{fjebaker/global-game-jam-2023}. It is also worth reading the \tinygo documentation on the \href{https://tinygo.org/docs/concepts/compiler-internals/differences-from-go/}{Differences from Go}. 
+
+Finally, it is also worth noting that someone has already implemented a Go module for the TIC-80 \href{https://github.com/sorucoder/tic80/blob/master/tic80.go}{sorucoder/tic80} which we can use to base our implementation on. I am reluctant to just use this module as we won't really learn the memory map overview, and wrapping new functions is not too difficult.
+
+
+\subsection{Setup}
+
+\tinygo requires all sorts of setup configuration, but is probably easiest to use directly from the Docker image provided by the maintainers. As long as you have a Docker runtime installed and running, the Makefile included in the example repository should work fine.
+
+Inline with the restrictions of the TIC-80, we have a \lstinline|target.json| file included which sets up the memory topology and linker flags needed. Interesting to note is that although we \textit{should not need} to provide an entry point, go \textbf{still requires} that the \lstinline|_start| \textbf{symbol is invoke} to setup the garbage collector and thread runtime. We can delegate this task to the \lstinline|BOOT| function.
+\\
+\begin{lstlisting}
+//go:export BOOT
+func BOOT() {
+    tic80.Init()
+}
+// still need this since _start calls main
+func main() {}
+\end{lstlisting}
+
+\subsection{Modifying \texttt{tic80.go}}
+
+The full memory map of the TIC-80 is probably easiest to understand by looking at the C example \href{https://github.com/nesbox/TIC-80/blob/main/templates/c/src/tic80.h}{here}. We add new functions simply with the compiler directives. For example, the \lstinline|print| function might look like:
+\\
+\begin{lstlisting}
+import unsafe
+
+//go:export print
+func print(textBuffer unsafe.Pointer, x, y int32, color, fixed, scale, alt int8) int32
+\end{lstlisting}
+
+\end{document}

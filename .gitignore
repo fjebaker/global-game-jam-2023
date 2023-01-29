@@ -1,2 +1,13 @@
 .local
 cart.wasm
+*.aux
+*.fdb_latexmk
+*.fls
+*.listing
+*.log
+*.out
+*.gz
+*.toc
+*.tic
+*.vscode
+.DS_Store

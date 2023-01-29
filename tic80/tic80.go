@@ -1,8 +1,15 @@
+// some parts lifted from, others inspired by: https://github.com/sorucoder/tic80/blob/master/tic80.go
 package tic80
 
 import (
-	"unsafe"
 	"reflect"
+	"unsafe"
+)
+
+// memory addresses
+var (
+	IO_RAM   = (*[0x18000]byte)(unsafe.Pointer(uintptr(0x00000)))
+	FREE_RAM = (*[0x28000]byte)(unsafe.Pointer(uintptr(0x18000)))
 )
 
 func toByteData(goBytes *[]byte) (buffer unsafe.Pointer, count int) {
@@ -40,7 +47,7 @@ func cls(color int8)
 func print(textBuffer unsafe.Pointer, x int32, y int32, color int8, fixed int8, scale int8, alt int8) int32
 
 //go:linkname Init _start
-func Init() 
+func Init()
 
 func Clear(color int8) {
 	cls(color)
