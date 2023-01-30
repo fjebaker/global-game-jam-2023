@@ -6,7 +6,7 @@ import (
 
 func toBytes(s *string) unsafe.Pointer {
 	// length 0, capacity len(*s) + 1
-	data := make([]byte, 0, len(*s) + 1)
+	data := make([]byte, 0, len(*s) + 2)
 	for _, token := range *s {
 		switch {
 		case token <= 0:
