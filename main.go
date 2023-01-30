@@ -1,18 +1,15 @@
 package main
 
-import "cart/tic80"
-
-//go:export TIC
-func TIC() {
-	tic80.Clear(13)
-	message := "Hello World"
-	tic80.Print(&message, 60, 84, 15, 1, 1, 0)
-}
+import (
+	"cart/cart"
+)
 
 //go:export BOOT
 func BOOT() {
-	tic80.Init()
+	cart.Start()
 }
 
-// still need this since _start calls main
-func main() {}
+//go:export TIC
+func TIC() {
+	cart.Loop()
+}

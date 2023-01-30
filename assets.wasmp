@@ -1,0 +1,33 @@
+-- title:   todo
+-- author:  todo
+-- desc:    todo
+-- site:    todo
+-- license: MIT License (change this to your license of choice)
+-- version: 0.1
+-- script:  wasm
+
+-- <TILES>
+-- 001:eccccccccc888888c6666666c6888888c6ccccccc6cc0cccc6cc0cccc6cc0ccc
+-- 002:ccccceee8888ccee66660cee88860ceeccc60ccc0cc60c0c0cc60c0c0cc60c0c
+-- 003:eccccccccc888888c6666666c6888888c6ccccccc6ccccccc6cc0cccc6cc0ccc
+-- 004:ccccceee8888ccee66660cee88860ceeccc60cccccc60c0c0cc60c0c0cc60c0c
+-- 017:c6ccccccc6666666c666c666c6666cccc6666666c8888888cc000cccecccccec
+-- 018:ccc600cc66660ccec6660cee66660cee66660cee8888ccee000cceeecccceeee
+-- 019:c6ccccccc6666666c666c666c6666cccc6666666c8888888cc000cccecccccec
+-- 020:ccc600cc66660ccec6660cee66660cee66660cee8888ccee000cceeecccceeee
+-- </TILES>
+
+-- <WAVES>
+-- 000:00000000ffffffff00000000ffffffff
+-- 001:0123456789abcdeffedcba9876543210
+-- 002:0123456789abcdef0123456789abcdef
+-- </WAVES>
+
+-- <SFX>
+-- 000:000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000304000000000
+-- </SFX>
+
+-- <PALETTE>
+-- 000:1a1c2c5d275db13e53ef7d57ffcd75a7f07038b76425717929366f3b5dc941a6f673eff7f4f4f494b0c2566c86333c57
+-- </PALETTE>
+

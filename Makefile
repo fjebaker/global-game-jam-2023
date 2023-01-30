@@ -7,8 +7,8 @@ WASMOPT = wasm-opt
 
 WASMP_FILE := assets.wasmp
 
-GOFLAGS 		:= -target ./target.json -panic print -opt z -no-debug
-WASMOPTFLAGS 	:= -Oz --zero-filled-memory --strip-producers --enable-bulk-memory
+GOFLAGS 		:= -target ./target.json -panic print # -opt z -no-debug
+WASMOPTFLAGS 	:= -Oz --enable-bulk-memory # --zero-filled-memory --strip-producers
 
 CHECKFILESIZE = \
     FSIZE=$$(du -k cart.wasm | cut -f 1) ; \
@@ -16,14 +16,18 @@ CHECKFILESIZE = \
         >&2 echo "!!! filesize too big" ; exit 1 ; \
     fi
 
-main:
+main: build
+	@echo "-- Optimization pass:"
+	# $(WASMOPT) $(WASMOPTFLAGS)  cart.wasm -o cart.wasm
+	du -hs cart.wasm
+
+build:
 	$(TINYGO) build $(GOFLAGS) -o ./cart.wasm .
-	$(WASMOPT) $(WASMOPTFLAGS)  cart.wasm -o cart.wasm
 	@$(CHECKFILESIZE)
+	du -hs cart.wasm
 
 run: main
 	$(TIC80) --skip --fs . --cmd 'load $(WASMP_FILE) & import binary cart.wasm & run & exit'
-
 
 .PHONY: format cart tic80 run-cart clean
 format:
