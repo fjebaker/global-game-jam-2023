@@ -12,7 +12,7 @@ var (
 )
 
 // ButtonCode represents a button id
-type ButtonCode int
+type ButtonCode int32
 
 // Gamepads
 const (
@@ -207,7 +207,7 @@ func _rectb(x, y, width, height int32, color int32)
 func _sf(id, note, octave, duration, channel, volumeLeft, volumeRight, speed int32)
 
 //go:export spr
-func _spr(id, x, y int32, transparentColorBuffer unsafe.Pointer, transparentColorCount int8, scale, flip, rotate, width, height int32)
+func _spr(id, x, y int32, transparentColorBuffer unsafe.Pointer, transparentColorCount uint32, scale, flip, rotate, width, height int32)
 
 //go:export sync
 func _sync(mask int32, bank, toCart int8)

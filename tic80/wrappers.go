@@ -6,7 +6,7 @@ import (
 
 func toBytes(s *string) unsafe.Pointer {
 	// length 0, capacity len(*s) + 1
-	data := make([]byte, 0, len(*s) + 2)
+	data := make([]byte, 0, len(*s)+2)
 	for _, token := range *s {
 		switch {
 		case token <= 0:
@@ -35,4 +35,8 @@ func (mouse *MouseData) Update() {
 
 func Trace(message *string, color int32) {
 	_trace(toBytes(message), color)
+}
+
+func (id ButtonCode) IsPressed() bool {
+	return _btn(int32(id)) > 0
 }
