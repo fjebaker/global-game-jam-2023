@@ -13,7 +13,7 @@
       "-msign-ext",
       "-Oz"
     ],
-    "default-stack-size": 32768,
+    "default-stack-size": 131072,
     "ldflags": [
       "--allow-undefined",
       "--no-demangle",
@@ -21,7 +21,7 @@
       "--initial-memory=262144",
       "--max-memory=262144",
       "--global-base=98304",
-      "-zstack-size=32768",
+      "-zstack-size=131072",
       "--stack-first",
       "--strip-all",
       "--no-entry"
