@@ -180,7 +180,7 @@ type MouseData struct {
 func _mouse(data *MouseData)
 
 //go:export music
-func _music(track, frame, row int32, loop, sustain bool, tempo, speed int32)
+func _music(track_id, frame, row int32, loop, sustain bool, tempo, speed int32)
 
 //go:export print
 func _print(text unsafe.Pointer, x, y, color int32, fixed bool, scale int32, alt bool) int32

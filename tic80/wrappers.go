@@ -40,3 +40,7 @@ func Trace(message *string, color int32) {
 func (id ButtonCode) IsPressed() bool {
 	return _btn(int32(id)) > 0
 }
+
+func Music(track_id, frame, row int32, loop, sustain bool, tempo, speed int32) {
+	_music(track_id, frame, row, loop, sustain, tempo, speed)
+}
