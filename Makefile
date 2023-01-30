@@ -3,12 +3,10 @@ DOCKER_CMD := docker run --rm -v $(PWD):/src/cart -w /src/cart tinygo/tinygo:0.2
 TINYGO := $(DOCKER_CMD) tinygo
 GOFMT := $(DOCKER_CMD) gofmt
 TIC80  := tic80
-WASMOPT = wasm-opt
 
 WASMP_FILE := assets.wasmp
 
-GOFLAGS 		:= -target ./target.json -panic print # -opt z -no-debug
-WASMOPTFLAGS 	:= -Oz --enable-bulk-memory # --zero-filled-memory --strip-producers
+GOFLAGS := -target ./target.json -panic print # -opt z -no-debug
 
 CHECKFILESIZE = \
     FSIZE=$$(du -k cart.wasm | cut -f 1) ; \
@@ -16,12 +14,7 @@ CHECKFILESIZE = \
         >&2 echo "!!! filesize too big" ; exit 1 ; \
     fi
 
-main: build
-	@echo "-- Optimization pass:"
-	# $(WASMOPT) $(WASMOPTFLAGS)  cart.wasm -o cart.wasm
-	du -hs cart.wasm
-
-build:
+main:
 	$(TINYGO) build $(GOFLAGS) -o ./cart.wasm .
 	@$(CHECKFILESIZE)
 	du -hs cart.wasm
