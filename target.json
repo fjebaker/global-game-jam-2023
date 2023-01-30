@@ -1,27 +1,30 @@
 {
-    "llvm-target": "wasm32--wasi",
+    "llvm-target": "wasm32-unknown-wasi",
+    "cpu": "generic",
+    "features": "+bulk-memory,+nontrapping-fptoint,+sign-ext",
     "build-tags": [ "tinygo.wasm" ],
     "goos": "js",
     "goarch": "wasm",
     "linker": "wasm-ld",
     "libc": "wasi-libc",
     "cflags": [
-      "--target=wasm32--wasi",
-      "--sysroot={root}/lib/wasi-libc/sysroot",
+      "-mbulk-memory",
+      "-mnontrapping-fptoint",
+      "-msign-ext",
       "-Oz"
     ],
+    "default-stack-size": 131072,
     "ldflags": [
       "--allow-undefined",
       "--no-demangle",
+      "--import-memory",
       "--initial-memory=262144",
       "--max-memory=262144",
-      "--stack-first",
-      "--import-memory",
-      "-zstack-size=65536",
       "--global-base=98304",
+      "-zstack-size=131072",
+      "--stack-first",
       "--strip-all",
-      "--no-entry",
-      "--export-table"
+      "--no-entry"
     ],
     "wasm-abi": "js"
   }

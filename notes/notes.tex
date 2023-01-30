@@ -555,7 +555,7 @@ From what I can tell, the Go-ism for interface names is to end the interface wit
 \columnratio{0.45}
 \begin{paracol}{2}
 
-Interfaces are \textbf{types} that define a set of method signatures. They may be thought of as a tuple of \lstinline|(value, type)|
+\noindent Interfaces are \textbf{types} that define a set of method signatures. They may be thought of as a tuple of \lstinline|(value, type)|
 
 \switchcolumn
 \begin{lstlisting}
@@ -690,7 +690,7 @@ type error interface {
 
 \switchcolumn*
 
-Errors are normally returned in a tuple with the result. Errors are handled by testing \lstinline|err != nil|.
+\noindent Errors are normally returned in a tuple with the result. Errors are handled by testing \lstinline|err != nil|.
 
 \switchcolumn
 
@@ -759,9 +759,13 @@ type Number interface {
 \end{paracol}
 
 \subsection{Exports and imports}
+
+\noindent In Go, all files in the same directory are part of the same package, and all symbols are automatically available everywhere else. There is no need to explicitly import from local files, only for \textbf{other packages}. Files in the same directory should all being with \lstinline{package NAME}.
+\\
+
 \begin{paracol}{2}
 
-Exported functions from a package must begin with a capital letter. Packages which make use of \lstinline{helloworld} may only refer to \lstinline{helloworld.Foo}.
+\noindent Exported functions from a package must begin with a capital letter. Packages which make use of \lstinline{helloworld} may only refer to \lstinline{helloworld.Foo}.
 
 \switchcolumn
 
@@ -1063,12 +1067,12 @@ sudo ln -s $(pwd)/bin/tic80 /usr/local/bin/tic80
 
 \noindent Refer to the \href{https://github.com/nesbox/TIC-80}{TIC-80 readme} for full installation instructions for your OS.
 
-When executing a \lstinline|*.wasmp| script, we also require a setupfile with tile set, wave forms, etc. This is already included in the example repository (see \fullref{sec:tinygo-tic80}). We will generally use the CLI arguments \lstinline|--skip --fs .| to skip the startup animation and to mount the current working directory as the filesystem. 
+When executing a \lstinline|*.wasm| script, we also require an asset file with tile set, wave forms, etc. This is already included in the example repository (see \fullref{sec:tinygo-tic80}). We will generally use the CLI arguments \lstinline|--skip --fs .| to skip the startup animation and to mount the current working directory as the filesystem. 
 
 We load and start the \WASM executable with\\
 
 \begin{lstlisting}[language=Bash]
-load wasmdemo.wasmp 
+load assets.wasmp 
 import binary cart.wasm 
 run
 \end{lstlisting}
@@ -1079,6 +1083,10 @@ run
 \noindent Some general points:
 \begin{itemize}
     \item TIC-80 runs at 60 fps.
+    \item The display is 256 $\times$ 136 pixels with 16 colour palette.
+    \item 8 Button mouse and keyboard input.
+    \item 4 channels of sound.
+    \item 64KB of code.
 \end{itemize}
 
 \section{Using \tinygo to target TIC-80}\label{sec:tinygo-tic80}
@@ -1103,6 +1111,15 @@ func BOOT() {
 func main() {}
 \end{lstlisting}
 
+\noindent Go has some wacky stuff going on with importing other packages, so I've taken to separate the TIC-80 library from the main entry point and the actual source code. This is also partially to make functions testable without requiring starting TIC-80. Package imports must refer to everything under
+\\
+
+\begin{lstlisting}
+import "cart/NAME"
+\end{lstlisting}
+
+\noindent since this is the mount point in the Docker container. 
+
 \subsection{Modifying \texttt{tic80.go}}
 
 The full memory map of the TIC-80 is probably easiest to understand by looking at the C example \href{https://github.com/nesbox/TIC-80/blob/main/templates/c/src/tic80.h}{here}. We add new functions simply with the compiler directives. For example, the \lstinline|print| function might look like:
@@ -1113,5 +1130,33 @@ import unsafe
 //go:export print
 func print(textBuffer unsafe.Pointer, x, y int32, color, fixed, scale, alt int8) int32
 \end{lstlisting}
+
+\subsection{Developing}
+
+\noindent All \textbf{source code} changes should be made in the \lstinline|cart/| directory, and \lstinline[language=Bash]|main.go| should hopefully never have to be modified. Separating things like this should let us bolt on a test suite.
+
+Changing assets, including \textbf{sounds}, \textbf{sprites}, and \textbf{palette} should be done directly in TIC-80, and exported with
+\\
+\begin{lstlisting}[language=Bash]
+save assets.wasmp
+\end{lstlisting}
+
+\noindent The Makefile target \lstinline[language=Bash]|make tic80| is defined for convenience. Other targets include:
+
+\noindent
+
+\begin{itemize}
+    \item Code formatting: \lstinline[language=Bash]|make format|
+    \item Loading all source and assets and starting the game: \lstinline[language=Bash]|make run|
+    \item Building the cartridge for export: \lstinline[language=Bash]|make cart|
+    \item Running the exported cartridge: \lstinline[language=Bash]|make run-cart|
+\end{itemize}
+
+\subsection{Gotchas}
+
+\begin{itemize}
+    \item Seeing an error message like \lstinline|missing imported function| is often a red herring. Usually this indicates a data type misalignment or passing the wrong number of arguments.
+    \item Don't touch the stack size in \lstinline|target.json|. There are a number of different sources that quote different values for Go and TIC-80, but by trial and error and a little bit of deep insight \textbf{this is the pragmatically correct value}, i.e. 131072 bits.
+\end{itemize}
 
 \end{document}
