@@ -230,7 +230,7 @@ func _trib(x0, y0, x1, y1, x2, y2 float32, color int32)
 //go:export tstamp
 func _tstamp() uint32
 
-//go:linkname _start
+//go:linkname Start _start
 func Start()
 
 //go:export main.main
