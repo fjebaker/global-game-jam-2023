@@ -13,6 +13,7 @@
       "-msign-ext",
       "-Oz"
     ],
+    "scheduler": "none",
     "default-stack-size": 131072,
     "ldflags": [
       "--allow-undefined",

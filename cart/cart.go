@@ -2,22 +2,22 @@ package cart
 
 import (
 	"cart/tic80"
-	"strconv"
 	"math/rand"
+	"strconv"
 )
 
 var (
-	mouse           tic80.MouseData
-	t               int
-	x, y            int32
-	moving          bool
-	player, monster tic80.Sprite
+	mouse            tic80.MouseData
+	t                int
+	x, y             int32
+	moving           bool
+	player, monster  tic80.Sprite
 	count, direction int32
-	m_x, m_y		int32
+	m_x, m_y         int32
 )
 
 func randInt(min, max int) int {
-    return min + rand.Intn(max-min)
+	return min + rand.Intn(max-min)
 }
 
 func Start() {
@@ -31,7 +31,7 @@ func Start() {
 	monster = tic80.SquareSprite(272, 2)
 	m_x = 100
 	m_y = 100
-	// tic80.Music(0, 0, 0, true, false, 100, 6)
+	tic80.Music(0, 0, 0, true, false, 100, 8)
 }
 
 const IDLE1 = 257
@@ -94,37 +94,38 @@ func Loop() {
 	message := "Frame " + strconv.Itoa(t)
 	tic80.Print(&message, 1, 1, 15, true, 1, false)
 
-	if tic80.BUTTON_UP.IsPressed() {
-		y = y - 1
-		player.Id = getMotion(t)
-		moving = true
-	}
-	if tic80.BUTTON_DOWN.IsPressed() {
-		y = y + 1
-		player.Id = getMotion(t)
-		moving = true
-	}
-	if tic80.BUTTON_LEFT.IsPressed() {
-		x = x - 1
-		moving = true
-		player.Id = getMotion(t)
-		player.Flip = 0
-	}
-	if tic80.BUTTON_RIGHT.IsPressed() {
-		x = x + 1
-		moving = true
-		player.Id = getMotion(t)
-		player.Flip = 1
-	}
-	if moving == false {
-		player.Id = getIdle(t)
-	}
+	if (t % 2 == 0) {
+		if tic80.BUTTON_UP.IsPressed() {
+			y = y - 1
+			player.Id = getMotion(t)
+			moving = true
+		}
+		if tic80.BUTTON_DOWN.IsPressed() {
+			y = y + 1
+			player.Id = getMotion(t)
+			moving = true
+		}
+		if tic80.BUTTON_LEFT.IsPressed() {
+			x = x - 1
+			moving = true
+			player.Id = getMotion(t)
+			player.Flip = 0
+		}
+		if tic80.BUTTON_RIGHT.IsPressed() {
+			x = x + 1
+			moving = true
+			player.Id = getMotion(t)
+			player.Flip = 1
+		}
+		if moving == false {
+			player.Id = getIdle(t)
+		}
 
-	monster.Id = getMonsterIdle(t)
+		monster.Id = getMonsterIdle(t)
+	}
 
 	monster.Draw(100, 50)
 	player.Draw(x, y)
-
 
 	moving = false
 	t = t + 1

@@ -6,7 +6,7 @@ TIC80  := tic80
 
 WASMP_FILE := assets.wasmp
 
-GOFLAGS := -target ./target.json -panic print # -opt z -no-debug
+GOFLAGS := -target ./target.json -panic print -x  # -opt z -no-debug
 
 CHECKFILESIZE = \
     FSIZE=$$(du -k cart.wasm | cut -f 1) ; \
@@ -16,8 +16,8 @@ CHECKFILESIZE = \
 
 main:
 	$(TINYGO) build $(GOFLAGS) -o ./cart.wasm .
-	@$(CHECKFILESIZE)
 	du -hs cart.wasm
+	@$(CHECKFILESIZE)
 
 run: main
 	$(TIC80) --skip --fs . --cmd 'load $(WASMP_FILE) & import binary cart.wasm & run & exit'
