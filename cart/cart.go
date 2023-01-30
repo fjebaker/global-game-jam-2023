@@ -3,6 +3,7 @@ package cart
 import (
 	"cart/tic80"
 	"math/rand"
+	"math"
 	"strconv"
 )
 
@@ -30,7 +31,7 @@ func Start() {
 	player = tic80.SquareSprite(258, 1)
 	monster = tic80.SquareSprite(272, 2)
 	m_x = 100
-	m_y = 100
+	m_y = 50
 	tic80.Music(0, 0, 0, true, false, 100, 8)
 }
 
@@ -124,11 +125,25 @@ func Loop() {
 		monster.Id = getMonsterIdle(t)
 	}
 
-	monster.Draw(100, 50)
+	monster.Draw(m_x, m_y)
 	player.Draw(x, y)
+
+	distance := dist(x, y, m_x, m_y)
+	if  distance < 20.0 {
+		go_away := "go away"
+		tic80.Print(&go_away, m_x + 18, m_y - 3, 15, true, 1, false)	
+	}
 
 	moving = false
 	t = t + 1
 	// avoid overflows
 	t = t % 3600
+}
+
+type number interface {
+	int32 | int64 | float32 | float64 | uint32 | uint64
+}
+
+func dist[T number](x1, y1, x2, y2 T) float64 {
+	return math.Sqrt(math.Pow(float64(x2 - x1), 2.0) + math.Pow(float64(y2 - y1), 2.0))
 }
