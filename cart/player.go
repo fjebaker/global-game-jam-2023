@@ -13,7 +13,7 @@ type Player struct {
 
 func NewPlayer(x, y int32) Player {
 	sprite := tic80.SquareSprite(258, 1)
-	sprite.Rotate = F_UP
+	sprite.Rotate = tic80.ROTATE_NONE
 	sfx := tic80.NewSoundEffect(61, 0)
 	return Player{x, y, 0, sprite, sfx, 10, false}
 }
@@ -40,22 +40,22 @@ func (player *Player) Draw(t int32) {
 
 func (player *Player) HandleInteraction(t int32) {
 	if tic80.BUTTON_UP.IsPressed() {
-		player.Sprite.Rotate = F_UP
+		player.Sprite.Rotate = tic80.ROTATE_NONE
 		player.Moving = true
 		return
 	}
 	if tic80.BUTTON_RIGHT.IsPressed() {
-		player.Sprite.Rotate = F_RIGHT
+		player.Sprite.Rotate = tic80.ROTATE_RIGHT
 		player.Moving = true
 		return
 	}
 	if tic80.BUTTON_LEFT.IsPressed() {
-		player.Sprite.Rotate = F_LEFT
+		player.Sprite.Rotate = tic80.ROTATE_LEFT
 		player.Moving = true
 		return
 	}
 	if tic80.BUTTON_DOWN.IsPressed() {
-		player.Sprite.Rotate = F_DOWN
+		player.Sprite.Rotate = tic80.ROTATE_DOWN
 		player.Moving = true
 		return
 	}
@@ -65,13 +65,13 @@ func (player *Player) HandleInteraction(t int32) {
 
 func (player *Player) move() {
 	switch player.Sprite.Rotate {
-	case F_UP:
+	case tic80.ROTATE_NONE:
 		player.Y = player.Y - 1
-	case F_DOWN:
+	case tic80.ROTATE_DOWN:
 		player.Y = player.Y + 1
-	case F_RIGHT:
+	case tic80.ROTATE_RIGHT:
 		player.X = player.X + 1
-	case F_LEFT:
+	case tic80.ROTATE_LEFT:
 		player.X = player.X - 1
 	}
 }

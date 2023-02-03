@@ -106,6 +106,25 @@ const (
 	KEY_ALT
 )
 
+// Sprite flags
+type TicFlip int32
+type TicRotate int32
+
+// Flips
+const (
+	FLIP_NONE TicFlip = iota
+	FLIP_HORZ
+	FLIP_VERT
+)
+
+// Rotations
+const (
+	ROTATE_NONE TicRotate = iota
+	ROTATE_RIGHT
+	ROTATE_DOWN
+	ROTATE_LEFT
+)
+
 //go:export btn
 func _btn(id int32) int32
 
@@ -152,7 +171,7 @@ func _keyp(id int8, hold, period int32) int32
 func _line(x0, y0, x1, y1 float32, color int32)
 
 //go:export map
-func _map(x, y, width, height, screenX, screenY int32, transparentColorBuffer unsafe.Pointer, transparentColorCount int8, unused int32)
+func _map(x, y, width, height, screenX, screenY int32, transparentColorBuffer unsafe.Pointer, transparentColorCount int8, scale int32, remapFunc int32)
 
 //go:export memcpy
 func _memcpy(destination, source, length int32)
@@ -207,7 +226,7 @@ func _rectb(x, y, width, height int32, color int32)
 func _sfx(id, note, octave, duration, channel, volumeLeft, volumeRight, speed int32)
 
 //go:export spr
-func _spr(id, x, y int32, transparentColorBuffer unsafe.Pointer, transparentColorCount uint32, scale, flip, rotate, width, height int32)
+func _spr(id, x, y int32, transparentColorBuffer unsafe.Pointer, transparentColorCount uint32, scale int32, flip TicFlip, rotate TicRotate, width, height int32)
 
 //go:export sync
 func _sync(mask int32, bank, toCart int8)

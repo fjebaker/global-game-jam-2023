@@ -7,8 +7,8 @@ type Sprite struct {
 	TransparentColor      uint32
 	TransparentColorCount uint32
 	Scale                 int32
-	Flip                  int32
-	Rotate                int32
+	Flip                  TicFlip
+	Rotate                TicRotate
 	width                 int32
 	height                int32
 }
