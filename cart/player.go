@@ -14,8 +14,8 @@ type Player struct {
 func NewPlayer(x, y int32) Player {
 	sprite := tic80.SquareSprite(258, 1)
 	sprite.Rotate = F_UP
-	sfx := tic80.NewSoundEffect(61)
-	return Player{x, y, 0, sprite, 10, false}
+	sfx := tic80.NewSoundEffect(61, 0)
+	return Player{x, y, 0, sprite, sfx, 10, false}
 }
 
 const player_main_frame = 256
@@ -60,6 +60,7 @@ func (player *Player) HandleInteraction(t int32) {
 		return
 	}
 	player.Moving = false
+	player.Move_fx.Stop()
 }
 
 func (player *Player) move() {
@@ -76,7 +77,14 @@ func (player *Player) move() {
 }
 
 func (player *Player) Update(t int32) {
-	if player.Moving && (t*player.Speed)%30 == 0 {
-		player.move()
+	if player.Moving {
+		// check sfx update
+		if player.Move_fx.IsPlaying(t) == false {
+			player.Move_fx.PlayRecordTime(t)
+		}
+		// check whether to advance location
+		if (t*player.Speed)%30 == 0 {
+			player.move()
+		}
 	}
 }
