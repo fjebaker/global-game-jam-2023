@@ -1,13 +1,31 @@
 package tic80
 
 type SoundEffect struct {
-	Id, Note, Octave, Duration, Channel, Volume, Speed	int32
+	Id, Note, Octave, Duration, Channel, Volume, Speed int32
+	T_start                                            int32
 }
 
 func NewSoundEffect(id, channel int32) SoundEffect {
-	return SoundEffect{id, 0, 8, 30, channel, 10, 0}
+	return SoundEffect{id, 0, 8, 30, channel, 10, 0, 0}
+}
+
+func (sfx *SoundEffect) PlayRecordTime(t int32) {
+	sfx.T_start = t
+	sfx.Play()
+}
+
+func (sfx *SoundEffect) IsPlaying(t int32) bool {
+	return sfx.Duration >= (t - sfx.T_start)
 }
 
 func (sfx *SoundEffect) Play() {
-	_sfx(sfx.Id, sfx.Note, sfx.Octave, sfx.Duration, sfx.Channel, sfx.Volume, sfx.Volume, sfx.Speed)
+	sfx.playId(sfx.Id)
+}
+
+func (sfx *SoundEffect) Stop() {
+	sfx.playId(-1)
+}
+
+func (sfx *SoundEffect) playId(id int32) {
+	_sfx(id, sfx.Note, sfx.Octave, sfx.Duration, sfx.Channel, sfx.Volume, sfx.Volume, sfx.Speed)
 }
