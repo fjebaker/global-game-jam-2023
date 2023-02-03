@@ -3,16 +3,18 @@ package cart
 import "cart/tic80"
 
 type Player struct {
-	X, Y   int32
-	Frame  int32
-	Sprite tic80.Sprite
-	Speed  int32
-	Moving bool
+	X, Y    int32
+	Frame   int32
+	Sprite  tic80.Sprite
+	Move_fx tic80.SoundEffect
+	Speed   int32
+	Moving  bool
 }
 
 func NewPlayer(x, y int32) Player {
 	sprite := tic80.SquareSprite(258, 1)
 	sprite.Rotate = F_UP
+	sfx := tic80.NewSoundEffect(61)
 	return Player{x, y, 0, sprite, 10, false}
 }
 

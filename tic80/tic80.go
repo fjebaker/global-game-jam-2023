@@ -204,7 +204,7 @@ func _rect(x, y, width, height int32, color int32)
 func _rectb(x, y, width, height int32, color int32)
 
 //go:export sfx
-func _sf(id, note, octave, duration, channel, volumeLeft, volumeRight, speed int32)
+func _sfx(id, note, octave, duration, channel, volumeLeft, volumeRight, speed int32)
 
 //go:export spr
 func _spr(id, x, y int32, transparentColorBuffer unsafe.Pointer, transparentColorCount uint32, scale, flip, rotate, width, height int32)
