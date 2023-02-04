@@ -45,3 +45,13 @@ func Loop() {
 	// avoid overflows
 	_t = _t % OVERFLOW_MODULO_TIME
 }
+
+// utility methods
+
+func TimeSince(t, t_start int32) int32 {
+	if t < t_start {
+		return (t + OVERFLOW_MODULO_TIME) - t_start
+	} else {
+		return t - t_start
+	}
+}
