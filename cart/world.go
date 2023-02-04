@@ -27,6 +27,11 @@ func NewWorld(player *Player) World {
 	return World{tileX, tileY, offsetX, offsetY}
 }
 
+func (world *World) DigTile(x, y int32) {
+	tileX, tileY, _, _ := worldToTile(x, y)
+	tic80.MSet(tileX, tileY, tic80.MAP_EMPTY_TILE)
+}
+
 func (world *World) Draw(t int32) {
 	// The background is the entire right screenwidth of the map tiles
 	tic80.Map(WORLD_BACKGROUND_X, world.Y, 0, world.OffsetY)
