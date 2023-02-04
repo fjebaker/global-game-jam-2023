@@ -5,7 +5,6 @@ import "unsafe"
 type Sprite struct {
 	Id                    int32
 	TransparentColor      uint32
-	TransparentColorCount uint32
 	Scale                 int32
 	Flip                  TicFlip
 	Rotate                TicRotate
@@ -19,7 +18,6 @@ func SquareSprite(id, width int32) Sprite {
 		width:                 width,
 		height:                width,
 		TransparentColor:      0,
-		TransparentColorCount: 1,
 		Scale:                 1,
 	}
 	return s
@@ -31,7 +29,7 @@ func (s *Sprite) Draw(x, y int32) {
 		x,
 		y,
 		unsafe.Pointer(&s.TransparentColor),
-		s.TransparentColorCount,
+		1,
 		s.Scale,
 		s.Flip,
 		s.Rotate,
