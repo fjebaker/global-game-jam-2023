@@ -40,8 +40,7 @@ const (
 const (
 	RABBIT_START_POSITION_X = (104 * 8)
 	RABBIT_START_POSITION_Y = (12 * 8)
-	RABBIT_ITEM_OFFSET_Y    = 4
-	RABBIT_ITEM_OFFSET_X    = 4
+	RABBIT_ITEM_OFFSET      = 4
 )
 
 func NewRabbit(x, y, mapx, mapy int32) Rabbit {
@@ -58,10 +57,10 @@ func (rabbit *Rabbit) switchIdleFrame() {
 	rabbit.Sprite.Id = rabbit_main_frame + (4 * rabbit.Frame)
 }
 
-func (rabbit *Rabbit) drawThoughBubble(x, y, t int32) {
+func (rabbit *Rabbit) drawThoughtBubble(x, y, t int32) {
 	sprite := tic80.SquareSprite(rabbit.DesiredItem, 1)
-	x_item := x - RABBIT_ITEM_OFFSET_X
-	y_item := y - RABBIT_ITEM_OFFSET_X
+	x_item := x - RABBIT_ITEM_OFFSET
+	y_item := y - RABBIT_ITEM_OFFSET
 
 	if rabbit.BubbleState >= THOUGHT_BUBBLE_SMALL {
 		tic80.EllipseWithBorder(x_item+10, y_item+11, 2, 1, 12, 13)
@@ -90,7 +89,7 @@ func (rabbit *Rabbit) Draw(t int32) {
 			rabbit.BubbleState = THOUGHT_BUBBLE_BIG
 		}
 		// draw the thought bubble
-		rabbit.drawThoughBubble(x, y, t)
+		rabbit.drawThoughtBubble(x, y, t)
 	} else if rabbit.BubbleState == THOUGHT_BUBBLE_FADE {
 		if TimeSince(t, rabbit.Ticker) > THOUGHT_BUBBLE_DELAY {
 			rabbit.BubbleState = THOUGHT_BUBBLE_SMALL
