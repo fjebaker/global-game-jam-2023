@@ -33,6 +33,9 @@ func NewPlayer(worldX, worldY int32) Player {
 
 const player_main_frame = 256
 
+// DEBUG FRAME
+// const player_main_frame = 336
+
 func (player *Player) incrementFrame() {
 	player.Frame = (player.Frame + 1) % 5
 	player.Sprite.Id = player_main_frame + player.Frame
@@ -77,30 +80,23 @@ func (player *Player) HandleInteraction(t int32) {
 }
 
 func (player *Player) move(world *World) {
-	maybePosX, maybePosY := player.X, player.Y
-	maybeTileX, maybeTileY := player.X, player.Y
+	x, y := player.GetInfront()
+	// What does the tile in that position contain?
+	tileIndex := world.GetMapTile(x, y)
+
+	if world.IsIndestructible(tileIndex) {
+		return
+	}
 
 	switch player.Sprite.Rotate {
 	case tic80.ROTATE_NONE:
-		maybePosY -= 1
-		maybeTileY = maybePosY
+		player.Y -= 1
 	case tic80.ROTATE_DOWN:
-		maybePosY += 1
-		maybeTileY = maybePosY + PLAYER_DELTA_Y
+		player.Y += 1
 	case tic80.ROTATE_RIGHT:
-		maybePosX += 1
-		maybeTileX = maybePosX + PLAYER_DELTA_X
+		player.X += 1
 	case tic80.ROTATE_LEFT:
-		maybePosX -= 1
-		maybeTileX = maybePosX
-	}
-
-	// What does the tile in that position contain?
-	tileIndex := world.GetMapTile(maybeTileX, maybeTileY)
-
-	if world.IsInBounds(maybePosX, maybePosY) && !world.IsIndestructible(tileIndex) {
-		player.X = maybePosX
-		player.Y = maybePosY
+		player.X -= 1
 	}
 }
 
@@ -115,4 +111,24 @@ func (player *Player) Update(t int32, world *World) {
 			player.move(world)
 		}
 	}
+}
+
+func (player *Player) GetInfront() (int32, int32) {
+	var x, y int32
+	switch player.Sprite.Rotate {
+	case tic80.ROTATE_NONE:
+		y = player.Y - 8 + PLAYER_DELTA_Y - 1
+		x = player.X
+	case tic80.ROTATE_DOWN:
+		y = player.Y + 8 - PLAYER_DELTA_Y
+		x = player.X
+	case tic80.ROTATE_RIGHT:
+		y = player.Y
+		x = player.X + 8 - PLAYER_DELTA_X
+	case tic80.ROTATE_LEFT:
+		y = player.Y
+		x = player.X - 8 + PLAYER_DELTA_Y - 1
+	}
+
+	return x + PLAYER_DELTA_X, y + PLAYER_DELTA_Y
 }
