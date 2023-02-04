@@ -106,7 +106,7 @@ func (rabbit *Rabbit) Update(t int32, player *Player, game *Game) {
 			player.HasItem = false
 			game.NewDesiredItem()
 			rabbit.ItemSprite.Id = int32(game.DesiredItem)
-			rabbit.Ticker = 0
+			rabbit.Ticker = t
 			rabbit.ShowHeart = true
 		}
 		rabbit.SetShowItem(t, true)
