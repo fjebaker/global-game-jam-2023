@@ -19,6 +19,7 @@ type Player struct {
 	Frame      int32
 	Sprite     tic80.Sprite
 	Move_fx    tic80.SoundEffect
+	Eat_fx     tic80.SoundEffect
 	Speed      int32
 	Dead       bool
 	Digging    bool
@@ -30,9 +31,10 @@ type Player struct {
 func NewPlayer(worldX, worldY int32, desired_item_sprite *tic80.Sprite) Player {
 	sprite := tic80.SquareSprite(258, 1)
 	sprite.Rotate = tic80.ROTATE_RIGHT
-	move_fx := tic80.NewSoundEffect(61, 3, 30)
+	move_fx := tic80.NewSoundEffect(61, 3, 8)
+	eat_fx := tic80.NewSoundEffect(63, 3, 30)
 
-	return Player{worldX, worldY, 0, sprite, move_fx, 4, false, false, false, false, desired_item_sprite}
+	return Player{worldX, worldY, 0, sprite, move_fx, eat_fx, 4, false, false, false, false, desired_item_sprite}
 }
 
 const (
@@ -145,6 +147,7 @@ func (player *Player) Update(t int32, world *World, game *Game) {
 		switch {
 		case world.IsDirt(tileIndex):
 			world.DigTile(x, y)
+			player.Eat_fx.Play()
 		case world.IsItem(tileIndex):
 			world.CollectItem(x, y)
 		}
