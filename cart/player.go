@@ -193,8 +193,8 @@ func (player *Player) move(world *World) {
 }
 
 func (player *Player) DrawTooltips() {
-	tic80.RectangleWithBorder(0, 0, 12, 12, 12, 9)
+	tic80.RectangleWithBorder(2, 2, 12, 12, 0, 9)
 	if player.HasItem {
-		player.ItemSprite.Draw(2, 2)
+		player.ItemSprite.Draw(4, 4)
 	}
 }
