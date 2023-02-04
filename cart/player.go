@@ -37,10 +37,8 @@ const player_main_frame = 256
 // DEBUG FRAME
 // const player_main_frame = 336
 
-func (player *Player) incrementFrame() {
-	player.Frame = (player.Frame + 1) % 5
-	player.Sprite.Id = player_main_frame + player.Frame
-}
+///////////////////////////////////////////////////////////////////////////////
+// Methods
 
 func (player *Player) Draw(t int32) {
 	var mod int32
@@ -57,6 +55,26 @@ func (player *Player) Draw(t int32) {
 		player.incrementFrame()
 	}
 	player.Sprite.Draw(PLAYER_OFFSET_X, PLAYER_OFFSET_Y)
+}
+
+func (player *Player) GetInfront() (int32, int32) {
+	var x, y int32
+	switch player.Sprite.Rotate {
+	case tic80.ROTATE_NONE:
+		y = player.Y - 8 + PLAYER_DELTA_Y - 1
+		x = player.X
+	case tic80.ROTATE_DOWN:
+		y = player.Y + 8 - PLAYER_DELTA_Y
+		x = player.X
+	case tic80.ROTATE_RIGHT:
+		y = player.Y
+		x = player.X + 8 - PLAYER_DELTA_X
+	case tic80.ROTATE_LEFT:
+		y = player.Y
+		x = player.X - 8 + PLAYER_DELTA_Y - 1
+	}
+
+	return x + PLAYER_DELTA_X, y + PLAYER_DELTA_Y
 }
 
 func (player *Player) HandleInteraction(t int32) {
@@ -140,26 +158,37 @@ func (player *Player) Update(t int32, world *World) {
 		switch {
 		case world.IsDirt(tileIndex):
 			world.DigTile(x, y)
+		case world.IsItem(tileIndex):
+			world.CollectItem(x, y)
 		}
 	}
 }
 
-func (player *Player) GetInfront() (int32, int32) {
-	var x, y int32
-	switch player.Sprite.Rotate {
-	case tic80.ROTATE_NONE:
-		y = player.Y - 8 + PLAYER_DELTA_Y - 1
-		x = player.X
-	case tic80.ROTATE_DOWN:
-		y = player.Y + 8 - PLAYER_DELTA_Y
-		x = player.X
-	case tic80.ROTATE_RIGHT:
-		y = player.Y
-		x = player.X + 8 - PLAYER_DELTA_X
-	case tic80.ROTATE_LEFT:
-		y = player.Y
-		x = player.X - 8 + PLAYER_DELTA_Y - 1
+///////////////////////////////////////////////////////////////////////////////
+// Utils
+
+func (player *Player) incrementFrame() {
+	player.Frame = (player.Frame + 1) % 5
+	player.Sprite.Id = player_main_frame + player.Frame
+}
+
+func (player *Player) move(world *World) {
+	x, y := player.GetInfront()
+	// What does the tile in that position contain?
+	tileIndex := world.GetMapTile(x, y)
+
+	if world.IsIndestructible(tileIndex) || world.IsDirt(tileIndex) {
+		return
 	}
 
-	return x + PLAYER_DELTA_X, y + PLAYER_DELTA_Y
+	switch player.Sprite.Rotate {
+	case tic80.ROTATE_NONE:
+		player.Y -= 1
+	case tic80.ROTATE_DOWN:
+		player.Y += 1
+	case tic80.ROTATE_RIGHT:
+		player.X += 1
+	case tic80.ROTATE_LEFT:
+		player.X -= 1
+	}
 }
