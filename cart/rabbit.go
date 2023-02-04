@@ -125,14 +125,14 @@ func (rabbit *Rabbit) Update(t int32, player *Player, game *Game) {
 	// update the state of the thought bubble
 	if rabbit.ShowItem {
 		if rabbit.BubbleState == THOUGHT_BUBBLE_SMALL {
-			if TimeSince(t, rabbit.Ticker) > THOUGHT_BUBBLE_DELAY {
+			if dT > THOUGHT_BUBBLE_DELAY {
 				rabbit.BubbleState = THOUGHT_BUBBLE_BIG
 			}
 		} else if rabbit.BubbleState == THOUGHT_BUBBLE_FADE {
 			rabbit.BubbleState = THOUGHT_BUBBLE_BIG
 		}
 	} else if rabbit.BubbleState == THOUGHT_BUBBLE_FADE {
-		if TimeSince(t, rabbit.Ticker) > THOUGHT_BUBBLE_DELAY {
+		if dT > THOUGHT_BUBBLE_DELAY {
 			rabbit.BubbleState = THOUGHT_BUBBLE_SMALL
 		}
 	}
