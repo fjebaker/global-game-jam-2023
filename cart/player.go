@@ -3,13 +3,13 @@ package cart
 import "cart/tic80"
 
 type Player struct {
-	X, Y    int32
-	MapX, MapY    int32
-	Frame   int32
-	Sprite  tic80.Sprite
-	Move_fx tic80.SoundEffect
-	Speed   int32
-	Moving  bool
+	X, Y       int32
+	MapX, MapY int32
+	Frame      int32
+	Sprite     tic80.Sprite
+	Move_fx    tic80.SoundEffect
+	Speed      int32
+	Moving     bool
 }
 
 func NewPlayer(x, y, mapx, mapy int32) Player {

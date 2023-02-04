@@ -3,7 +3,7 @@ package cart
 import "cart/tic80"
 
 type World struct {
-	X, Y int32
+	X, Y             int32
 	OffsetX, OffsetY int32
 }
 
