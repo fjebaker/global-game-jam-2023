@@ -81,19 +81,7 @@ func (rabbit *Rabbit) Draw(t int32) {
 	rabbit.Sprite.Draw(x, y)
 
 	if rabbit.ShowItem {
-		if rabbit.BubbleState == THOUGHT_BUBBLE_SMALL {
-			if TimeSince(t, rabbit.Ticker) > THOUGHT_BUBBLE_DELAY {
-				rabbit.BubbleState = THOUGHT_BUBBLE_BIG
-			}
-		} else if rabbit.BubbleState == THOUGHT_BUBBLE_FADE {
-			rabbit.BubbleState = THOUGHT_BUBBLE_BIG
-		}
-		// draw the thought bubble
 		rabbit.drawThoughtBubble(x, y, t)
-	} else if rabbit.BubbleState == THOUGHT_BUBBLE_FADE {
-		if TimeSince(t, rabbit.Ticker) > THOUGHT_BUBBLE_DELAY {
-			rabbit.BubbleState = THOUGHT_BUBBLE_SMALL
-		}
 	}
 }
 
@@ -105,6 +93,20 @@ func (rabbit *Rabbit) Update(t int32, player *Player) {
 		rabbit.SetShowItem(t, true)
 	} else {
 		rabbit.SetShowItem(t, false)
+	}
+
+	if rabbit.ShowItem {
+		if rabbit.BubbleState == THOUGHT_BUBBLE_SMALL {
+			if TimeSince(t, rabbit.Ticker) > THOUGHT_BUBBLE_DELAY {
+				rabbit.BubbleState = THOUGHT_BUBBLE_BIG
+			}
+		} else if rabbit.BubbleState == THOUGHT_BUBBLE_FADE {
+			rabbit.BubbleState = THOUGHT_BUBBLE_BIG
+		}
+	} else if rabbit.BubbleState == THOUGHT_BUBBLE_FADE {
+		if TimeSince(t, rabbit.Ticker) > THOUGHT_BUBBLE_DELAY {
+			rabbit.BubbleState = THOUGHT_BUBBLE_SMALL
+		}
 	}
 }
 
