@@ -3,14 +3,14 @@ package cart
 import "cart/tic80"
 
 const (
-	PLAYER_DELTA_X = -4
+	PLAYER_DELTA_X = 4
 	PLAYER_DELTA_Y = 4
 
 	// Keep the player centered on screen
-	PLAYER_OFFSET_X int32 = 120 + PLAYER_DELTA_X
-	PLAYER_OFFSET_Y       = 67 + PLAYER_DELTA_Y
+	PLAYER_OFFSET_X int32 = 120 - PLAYER_DELTA_X
+	PLAYER_OFFSET_Y       = 67 - PLAYER_DELTA_Y
 
-	PLAYER_START_POSITION_X = 97 * 8
+	PLAYER_START_POSITION_X = 99 * 8
 	PLAYER_START_POSITION_Y = 14 * 8
 )
 
