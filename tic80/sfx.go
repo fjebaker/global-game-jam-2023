@@ -14,8 +14,12 @@ func (sfx *SoundEffect) PlayRecordTime(t int32) {
 	sfx.Play()
 }
 
-func (sfx *SoundEffect) IsPlaying(t int32) bool {
-	return sfx.Duration >= (t - sfx.T_start)
+func (sfx *SoundEffect) IsPlaying(t int32, tModulo int32) bool {
+	if t < sfx.T_start {
+		return sfx.Duration >= (t + tModulo - sfx.T_start)
+	} else {
+		return sfx.Duration >= (t - sfx.T_start)
+	}
 }
 
 func (sfx *SoundEffect) Play() {
