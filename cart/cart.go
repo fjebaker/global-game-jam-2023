@@ -2,6 +2,7 @@ package cart
 
 import (
 	"cart/tic80"
+	"math/rand"
 )
 
 const (
@@ -9,20 +10,23 @@ const (
 )
 
 var (
-	_mouse  tic80.MouseData
-	_t      int32
-	_player Player
-	_rabbit Rabbit
-	_world  World
-	_game   Game
+	_mouse               tic80.MouseData
+	_t                   int32
+	_player              Player
+	_rabbit              Rabbit
+	_world               World
+	_game                Game
+	_desired_item_sprite tic80.Sprite
 )
 
 func Start() {
 	_t = 0
-	_player = NewPlayer(PLAYER_START_POSITION_X, PLAYER_START_POSITION_Y)
-	_rabbit = NewRabbit(100, 50, RABBIT_START_POSITION_X, RABBIT_START_POSITION_Y)
-	_world = NewWorld(&_player)
 	_game = NewGame()
+	_desired_item_sprite = tic80.SquareSprite(int32(_game.DesiredItem), 1)
+	_player = NewPlayer(PLAYER_START_POSITION_X, PLAYER_START_POSITION_Y)
+	// rabbit holds a pointer to the desired item so that it may modify it
+	_rabbit = NewRabbit(100, 50, RABBIT_START_POSITION_X, RABBIT_START_POSITION_Y, &_desired_item_sprite)
+	_world = NewWorld(&_player)
 	tic80.Music(0, -1, -1, true, false, -1, -1)
 }
 
@@ -55,4 +59,8 @@ func TimeSince(t, t_start int32) int32 {
 	} else {
 		return t - t_start
 	}
+}
+
+func RandInt(min, max int) int {
+	return min + rand.Intn(max-min)
 }

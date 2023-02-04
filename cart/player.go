@@ -23,6 +23,7 @@ type Player struct {
 	Dead    bool
 	Digging bool
 	Moving  bool
+	HasItem bool
 }
 
 func NewPlayer(worldX, worldY int32) Player {
@@ -30,7 +31,7 @@ func NewPlayer(worldX, worldY int32) Player {
 	sprite.Rotate = tic80.ROTATE_RIGHT
 	sfx := tic80.NewSoundEffect(61, 3)
 
-	return Player{worldX, worldY, 0, sprite, sfx, 4, false, false, false}
+	return Player{worldX, worldY, 0, sprite, sfx, 4, false, false, false, false}
 }
 
 const (
