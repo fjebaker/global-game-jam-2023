@@ -23,7 +23,7 @@ main: format
 	@$(CHECKFILESIZE)
 
 run: main
-	$(TIC80) --skip --fs . --cmd 'load $(WASMP_FILE) & import binary cart.wasm & run & exit'
+	$(TIC80) --skip --fs . --volume 6 --cmd 'load $(WASMP_FILE) & import binary cart.wasm & run & exit'
 
 .PHONY: format cart tic80 run-cart clean
 format:
@@ -31,13 +31,13 @@ format:
 
 cart: main
 	rm -f game.tic
-	$(TIC80) --skip --fs . --cmd 'load $(WASMP_FILE) & import binary cart.wasm & save game.tic & exit'
+	$(TIC80) --skip --fs . --volume 6 --cmd 'load $(WASMP_FILE) & import binary cart.wasm & save game.tic & exit'
 
 tic80:
-	$(TIC80) --skip --fs . --cmd 'load $(WASMP_FILE) & import binary cart.wasm'
+	$(TIC80) --skip --fs . --volume 6 --cmd 'load $(WASMP_FILE) & import binary cart.wasm'
 
 run-cart: cart
-	$(TIC80) --fs . --cmd 'load game.tic & run & exit'
+	$(TIC80) --fs . --volume 6 --cmd 'load game.tic & run & exit'
 
 clean:
 	rm -f cart.wasm
