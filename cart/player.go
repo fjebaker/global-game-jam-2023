@@ -88,7 +88,7 @@ func (player *Player) move(world *World) {
 	// What does the tile in that position contain?
 	tileIndex := world.GetMapTile(x, y)
 
-	if world.IsIndestructible(tileIndex) {
+	if world.IsIndestructible(tileIndex) || world.IsDirt(tileIndex) {
 		return
 	}
 
@@ -101,24 +101,6 @@ func (player *Player) move(world *World) {
 		player.X += 1
 	case tic80.ROTATE_LEFT:
 		player.X -= 1
-		maybePosX -= 1
-		maybeTileX = maybePosX
-	}
-
-	// What does the tile in the movement direction contain?
-	tileIndex := world.GetMapTile(maybeTileX, maybeTileY)
-
-	if world.IsInBounds(maybePosX, maybePosY) && !world.IsIndestructible(tileIndex) {
-		dirt := world.IsDirt(tileIndex)
-
-		if !dirt || (dirt && player.Digging) {
-			player.X = maybePosX
-			player.Y = maybePosY
-
-			if dirt && player.Digging {
-				world.DigTile(maybeTileX, maybeTileY)
-			}
-		}
 	}
 }
 
@@ -131,6 +113,16 @@ func (player *Player) Update(t int32, world *World) {
 		// check whether to advance location
 		if (t*player.Speed)%30 == 0 {
 			player.move(world)
+		}
+	}
+
+	if player.Digging {
+		// check what is infront
+		x, y := player.GetInfront()
+		tileIndex := world.GetMapTile(x, y)
+		switch {
+		case world.IsDirt(tileIndex):
+			world.DigTile(x, y)
 		}
 	}
 }
