@@ -19,7 +19,7 @@ func Map(tileX, tileY, offsetX, offsetY int32) {
 	var safeX, safeY int32
 	transparent := 0
 
-	if tileX >= 0 && tileX <= (MAP_MAX_X-SCREEN_TILE_WIDTH) {
+	if tileX > 0 && tileX <= (MAP_MAX_X-SCREEN_TILE_WIDTH) {
 		safeX = tileX
 	} else if tileX < 0 {
 		safeX = 0
@@ -27,7 +27,7 @@ func Map(tileX, tileY, offsetX, offsetY int32) {
 		safeX = MAP_MAX_X - SCREEN_TILE_WIDTH
 	}
 
-	if tileY >= 0 && tileY <= (MAP_MAX_Y-SCREEN_TILE_HEIGHT) {
+	if tileY > 0 && tileY <= (MAP_MAX_Y-SCREEN_TILE_HEIGHT) {
 		safeY = tileY
 	} else if tileY < 0 {
 		safeY = 0
@@ -36,11 +36,12 @@ func Map(tileX, tileY, offsetX, offsetY int32) {
 	}
 
 	_map(
-		safeX, safeY,
+		safeX-1, safeY-1,
 		// Full screen of tiles
-		SCREEN_TILE_WIDTH+1, SCREEN_TILE_HEIGHT+1,
+		SCREEN_TILE_WIDTH+2, SCREEN_TILE_HEIGHT+2,
 		// Alway from the top left corner
-		-offsetX, -offsetY,
+		offsetX-16,
+		offsetY-16,
 		// Transparency
 		unsafe.Pointer(&transparent), 1,
 		// Scale

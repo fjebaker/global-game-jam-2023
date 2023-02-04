@@ -63,10 +63,10 @@ func (world *World) Update(t int32, player *Player) {
 // Utils
 
 func worldToTile(x, y int32) (int32, int32, int32, int32) {
+	offsetX := 8 - (x % 8)
+	offsetY := 8 - (y % 8)
 	tileX := x / 8
 	tileY := y / 8
-	offsetX := x % 8
-	offsetY := y % 8
 
 	return tileX, tileY, offsetX, offsetY
 }

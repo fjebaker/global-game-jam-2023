@@ -44,3 +44,7 @@ func (id ButtonCode) IsPressed() bool {
 func Music(track_id, frame, row int32, loop, sustain bool, tempo, speed int32) {
 	_music(track_id, frame, row, loop, sustain, tempo, speed)
 }
+
+func PaintPixel(x, y, color int32) {
+	_pix(x, y, color)
+}
