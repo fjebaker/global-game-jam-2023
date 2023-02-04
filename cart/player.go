@@ -29,7 +29,7 @@ func NewPlayer(worldX, worldY int32) Player {
 	sprite.Rotate = tic80.ROTATE_RIGHT
 	sfx := tic80.NewSoundEffect(61, 0)
 
-	return Player{worldX, worldY, 0, sprite, sfx, 10, false, false}
+	return Player{worldX, worldY, 0, sprite, sfx, 4, false, false}
 }
 
 const player_main_frame = 256
@@ -37,15 +37,17 @@ const player_main_frame = 256
 // DEBUG FRAME
 // const player_main_frame = 336
 
-func (player *Player) incrementFrame() {
-	player.Frame = (player.Frame + 1) % 5
-	player.Sprite.Id = player_main_frame + player.Frame
-}
+///////////////////////////////////////////////////////////////////////////////
+// Methods
 
 func (player *Player) Draw(t int32) {
 	var mod int32
 	if player.Moving {
-		mod = 5
+		if player.Speed == 1 {
+			mod = 2
+		} else {
+			mod = 5
+		}
 	} else {
 		mod = 12
 	}
@@ -55,9 +57,37 @@ func (player *Player) Draw(t int32) {
 	player.Sprite.Draw(PLAYER_OFFSET_X, PLAYER_OFFSET_Y)
 }
 
+func (player *Player) GetInfront() (int32, int32) {
+	var x, y int32
+	switch player.Sprite.Rotate {
+	case tic80.ROTATE_NONE:
+		y = player.Y - 8 + PLAYER_DELTA_Y - 1
+		x = player.X
+	case tic80.ROTATE_DOWN:
+		y = player.Y + 8 - PLAYER_DELTA_Y
+		x = player.X
+	case tic80.ROTATE_RIGHT:
+		y = player.Y
+		x = player.X + 8 - PLAYER_DELTA_X
+	case tic80.ROTATE_LEFT:
+		y = player.Y
+		x = player.X - 8 + PLAYER_DELTA_Y - 1
+	}
+
+	return x + PLAYER_DELTA_X, y + PLAYER_DELTA_Y
+}
+
 func (player *Player) HandleInteraction(t int32) {
 	// We always check for digging
 	player.Digging = tic80.BUTTON_B.IsPressed()
+
+	if tic80.BUTTON_A.IsPressed() {
+		player.Speed = 1
+		player.Move_fx.Note = 2
+	} else {
+		player.Speed = 3
+		player.Move_fx.Note = 0
+	}
 
 	if tic80.BUTTON_UP.IsPressed() {
 		player.Sprite.Rotate = tic80.ROTATE_NONE
@@ -83,8 +113,46 @@ func (player *Player) HandleInteraction(t int32) {
 	player.Move_fx.Stop()
 }
 
+func (player *Player) Update(t int32, world *World) {
+	if player.Moving {
+		// check sfx update
+		if player.Move_fx.IsPlaying(t, OVERFLOW_MODULO_TIME) == false {
+			player.Move_fx.PlayRecordTime(t)
+		}
+		// check whether to advance location
+		if ((t*15)/10)%player.Speed == 0 {
+			player.move(world)
+		}
+	}
+
+	if player.Digging {
+		// check what is infront
+		x, y := player.GetInfront()
+		tileIndex := world.GetMapTile(x, y)
+		switch {
+		case world.IsDirt(tileIndex):
+			world.DigTile(x, y)
+		case world.IsItem(tileIndex):
+			world.CollectItem(x, y)
+		}
+	}
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// Utils
+
+func (player *Player) incrementFrame() {
+	player.Frame = (player.Frame + 1) % 5
+	player.Sprite.Id = player_main_frame + player.Frame
+}
+
 func (player *Player) move(world *World) {
 	x, y := player.GetInfront()
+	// if we are trying to move out of bounds
+	// don't
+	if !world.IsInBounds(x, y) {
+		return
+	}
 	// What does the tile in that position contain?
 	tileIndex := world.GetMapTile(x, y)
 
@@ -102,47 +170,4 @@ func (player *Player) move(world *World) {
 	case tic80.ROTATE_LEFT:
 		player.X -= 1
 	}
-}
-
-func (player *Player) Update(t int32, world *World) {
-	if player.Moving {
-		// check sfx update
-		if player.Move_fx.IsPlaying(t, OVERFLOW_MODULO_TIME) == false {
-			player.Move_fx.PlayRecordTime(t)
-		}
-		// check whether to advance location
-		if (t*player.Speed)%30 == 0 {
-			player.move(world)
-		}
-	}
-
-	if player.Digging {
-		// check what is infront
-		x, y := player.GetInfront()
-		tileIndex := world.GetMapTile(x, y)
-		switch {
-		case world.IsDirt(tileIndex):
-			world.DigTile(x, y)
-		}
-	}
-}
-
-func (player *Player) GetInfront() (int32, int32) {
-	var x, y int32
-	switch player.Sprite.Rotate {
-	case tic80.ROTATE_NONE:
-		y = player.Y - 8 + PLAYER_DELTA_Y - 1
-		x = player.X
-	case tic80.ROTATE_DOWN:
-		y = player.Y + 8 - PLAYER_DELTA_Y
-		x = player.X
-	case tic80.ROTATE_RIGHT:
-		y = player.Y
-		x = player.X + 8 - PLAYER_DELTA_X
-	case tic80.ROTATE_LEFT:
-		y = player.Y
-		x = player.X - 8 + PLAYER_DELTA_Y - 1
-	}
-
-	return x + PLAYER_DELTA_X, y + PLAYER_DELTA_Y
 }

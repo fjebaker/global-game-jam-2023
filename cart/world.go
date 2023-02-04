@@ -27,6 +27,21 @@ func NewWorld(player *Player) World {
 	return World{tileX, tileY, offsetX, offsetY}
 }
 
+func (world *World) CollectItem(x, y int32) {
+	tileX, tileY, _, _ := worldToTile(x, y)
+	tic80.MSet(tileX, tileY, tic80.MAP_EMPTY_TILE)
+
+	for dy := int32(-1); dy < 2; dy++ {
+		for dx := int32(-1); dx < 2; dx++ {
+			index := tic80.MGet(tileX+dx, tileY+dy)
+			if tic80.FGet(index, tic80.MAP_TILE_ITEM_FLAG) {
+				tic80.MSet(tileX+dx, tileY+dy, tic80.MAP_EMPTY_TILE)
+			}
+		}
+	}
+
+}
+
 func (world *World) DigTile(x, y int32) {
 	tileX, tileY, _, _ := worldToTile(x, y)
 	tic80.MSet(tileX, tileY, tic80.MAP_EMPTY_TILE)
@@ -42,6 +57,10 @@ func (world *World) Draw(t int32) {
 func (world *World) GetMapTile(x, y int32) int32 {
 	tileX, tileY, _, _ := worldToTile(x, y)
 	return tic80.MGet(tileX, tileY)
+}
+
+func (world *World) IsDeadly(index int32) bool {
+	return tic80.FGet(index, tic80.MAP_TILE_DEADLY_FLAG)
 }
 
 func (world *World) IsDirt(index int32) bool {
@@ -62,7 +81,7 @@ func (world *World) IsInBounds(x, y int32) bool {
 	if tileX <= WORLD_LEFT_X || WORLD_RIGHT_X <= tileX {
 		return false
 	}
-	if y <= PLAYER_OFFSET_Y || WORLD_BOTTOM_Y <= tileY {
+	if tileY <= WORLD_GROUND_Y || WORLD_BOTTOM_Y <= tileY {
 		return false
 	}
 
@@ -74,7 +93,6 @@ func (world *World) Update(t int32, player *Player) {
 		player.X-PLAYER_OFFSET_X,
 		player.Y-PLAYER_OFFSET_Y,
 	)
-
 	world.X = tileX
 	world.Y = tileY
 	world.OffsetX = offsetX
