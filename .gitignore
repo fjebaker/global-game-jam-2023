@@ -9,6 +9,3 @@ cart.wasm
 *.gz
 *.toc
 *.tic
-*.vscode
-.DS_Store
-sync.sh
