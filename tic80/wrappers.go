@@ -52,3 +52,24 @@ func (id ButtonCode) IsPressed() bool {
 func PaintPixel(x, y, color int32) {
 	_pix(x, y, color)
 }
+
+func Rectangle(x, y, width, height, color int32) {
+	_rect(x, y, width, height, color)
+}
+
+func RectangleBorder(x, y, width, height, color int32) {
+	_rectb(x, y, width, height, color)
+}
+
+func Ellipse(x, y, radius_x, radius_y, color int32) {
+	_elli(x, y, radius_x, radius_y, color)
+}
+
+func EllipseBorder(x, y, radius_x, radius_y, color int32) {
+	_ellib(x, y, radius_x, radius_y, color)
+}
+
+func EllipseWithBorder(x, y, radius_x, radius_y, color, border_color int32) {
+	Ellipse(x, y, radius_x, radius_y, color)
+	EllipseBorder(x, y, radius_x, radius_y, border_color)
+}

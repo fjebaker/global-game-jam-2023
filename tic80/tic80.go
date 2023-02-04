@@ -217,10 +217,10 @@ func _pmem(address int32, value int64) uint32
 func _poke(address int32, value, bits int8)
 
 //go:export rect
-func _rect(x, y, width, height int32, color int32)
+func _rect(x, y, width, height, color int32)
 
 //go:export rectb
-func _rectb(x, y, width, height int32, color int32)
+func _rectb(x, y, width, height, color int32)
 
 //go:export sfx
 func _sfx(id, note, octave, duration, channel, volumeLeft, volumeRight, speed int32)
