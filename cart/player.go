@@ -116,7 +116,7 @@ func (player *Player) HandleInteraction(t int32) {
 func (player *Player) Update(t int32, world *World) {
 	if player.Moving {
 		// check sfx update
-		if player.Move_fx.IsPlaying(t) == false {
+		if player.Move_fx.IsPlaying(t, OVERFLOW_MODULO_TIME) == false {
 			player.Move_fx.PlayRecordTime(t)
 		}
 		// check whether to advance location
