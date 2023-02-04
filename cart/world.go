@@ -2,30 +2,67 @@ package cart
 
 import "cart/tic80"
 
+const (
+	WORLD_LEFT_X int32 = 0
+	// The "right edge" of the world occurs when the left edge
+	// is one screen's worth of tiles away (because of how we draw)
+	WORLD_RIGHT_X  = tic80.MAP_MAX_X - tic80.SCREEN_TILE_WIDTH
+	WORLD_GROUND_Y = 13
+	WORLD_BOTTOM_Y = tic80.MAP_MAX_Y
+)
+
 type World struct {
 	X, Y             int32
 	OffsetX, OffsetY int32
 }
 
-func NewWorld(player *Player) World {
-	tileX, tileY := worldPosition(player)
-	return World{tileX, tileY, 0, 0}
-}
+///////////////////////////////////////////////////////////////////////////////
+// Methods
 
-func worldPosition(player *Player) (int32, int32) {
-	playerTileX := (player.MapX / 8) - (tic80.SCREEN_TILE_WIDTH / 2)
-	playerTileY := (player.MapY / 8) - (tic80.SCREEN_TILE_HEIGHT / 2)
-	return playerTileX, playerTileY
+func NewWorld(player *Player) World {
+	tileX, tileY, offsetX, offsetY := worldToTile(player.X, player.Y)
+
+	return World{tileX, tileY, offsetX, offsetY}
 }
 
 func (world *World) Draw(t int32) {
+	// World.X, World.Y is the tile coordinates of the upper left corner
 	tic80.Map(world.X, world.Y, world.OffsetX, world.OffsetY)
 }
 
+func (world *World) IsInBounds(x, y int32) bool {
+	tileX, tileY, _, _ := worldToTile(x-PLAYER_OFFSET_X, y)
+
+	if tileX <= WORLD_LEFT_X || WORLD_RIGHT_X <= tileX {
+		return false
+	}
+	if y <= PLAYER_OFFSET_Y || WORLD_BOTTOM_Y <= tileY {
+		return false
+	}
+
+	return true
+}
+
 func (world *World) Update(t int32, player *Player) {
-	tileX, tileY := worldPosition(player)
+	tileX, tileY, offsetX, offsetY := worldToTile(
+		player.X-PLAYER_OFFSET_X,
+		player.Y-PLAYER_OFFSET_Y,
+	)
+
 	world.X = tileX
 	world.Y = tileY
-	world.OffsetX = player.MapX % 8
-	world.OffsetY = player.MapY % 8
+	world.OffsetX = offsetX
+	world.OffsetY = offsetY
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// Utils
+
+func worldToTile(x, y int32) (int32, int32, int32, int32) {
+	tileX := x / 8
+	tileY := y / 8
+	offsetX := x % 8
+	offsetY := y % 8
+
+	return tileX, tileY, offsetX, offsetY
 }

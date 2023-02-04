@@ -9,35 +9,37 @@ const (
 	SCREEN_PIXEL_WIDTH        = 240
 )
 const (
-	MAP_TILE_HEIGHT int32 = 136
-	MAP_TILE_WIDTH  int32 = 240
+	MAP_MAX_X       int32 = 240
+	MAP_MAX_Y             = 136
+	MAP_TILE_HEIGHT       = 8
+	MAP_TILE_WIDTH        = 8
 )
 
-func Map(x, y, offset_x, offset_y int32) {
+func Map(tileX, tileY, offsetX, offsetY int32) {
 	var safeX, safeY int32
 
-	if x >= 0 && x <= (MAP_TILE_WIDTH-SCREEN_TILE_WIDTH) {
-		safeX = x
-	} else if x < 0 {
+	if tileX >= 0 && tileX <= (MAP_MAX_X-SCREEN_TILE_WIDTH) {
+		safeX = tileX
+	} else if tileX < 0 {
 		safeX = 0
 	} else {
-		safeX = (MAP_TILE_WIDTH - SCREEN_TILE_WIDTH)
+		safeX = MAP_MAX_X - SCREEN_TILE_WIDTH
 	}
 
-	if y >= 0 && y <= (MAP_TILE_HEIGHT-SCREEN_TILE_HEIGHT) {
-		safeY = y
-	} else if y < 0 {
+	if tileY >= 0 && tileY <= (MAP_MAX_Y-SCREEN_TILE_HEIGHT) {
+		safeY = tileY
+	} else if tileY < 0 {
 		safeY = 0
 	} else {
-		safeY = (MAP_TILE_HEIGHT - SCREEN_TILE_HEIGHT)
+		safeY = MAP_MAX_Y - SCREEN_TILE_HEIGHT
 	}
 
 	_map(
 		safeX, safeY,
 		// Full screen of tiles
-		SCREEN_TILE_WIDTH, SCREEN_TILE_HEIGHT,
+		SCREEN_TILE_WIDTH+1, SCREEN_TILE_HEIGHT+1,
 		// Alway from the top left corner
-		-offset_x, offset_y,
+		-offsetX, -offsetY,
 		// Transparency
 		unsafe.Pointer(nil), 0,
 		// Scale

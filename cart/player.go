@@ -2,21 +2,27 @@ package cart
 
 import "cart/tic80"
 
+const (
+	// Keep the player centered on screen
+	PLAYER_OFFSET_X int32 = 120
+	PLAYER_OFFSET_Y       = 114
+)
+
 type Player struct {
-	X, Y       int32
-	MapX, MapY int32
-	Frame      int32
-	Sprite     tic80.Sprite
-	Move_fx    tic80.SoundEffect
-	Speed      int32
-	Moving     bool
+	X, Y    int32
+	Frame   int32
+	Sprite  tic80.Sprite
+	Move_fx tic80.SoundEffect
+	Speed   int32
+	Moving  bool
 }
 
-func NewPlayer(x, y, mapx, mapy int32) Player {
+func NewPlayer(worldX, worldY int32) Player {
 	sprite := tic80.SquareSprite(258, 1)
 	sprite.Rotate = tic80.ROTATE_RIGHT
 	sfx := tic80.NewSoundEffect(61, 0)
-	return Player{x, y, mapx, mapy, 0, sprite, sfx, 10, false}
+
+	return Player{worldX, worldY, 0, sprite, sfx, 10, false}
 }
 
 const player_main_frame = 256
@@ -36,9 +42,7 @@ func (player *Player) Draw(t int32) {
 	if t%mod == 0 {
 		player.incrementFrame()
 	}
-	// Keep the player centered on screen
-	// player.Sprite.Draw(player.X, player.Y)
-	player.Sprite.Draw(120, 114)
+	player.Sprite.Draw(PLAYER_OFFSET_X, PLAYER_OFFSET_Y)
 }
 
 func (player *Player) HandleInteraction(t int32) {
@@ -66,24 +70,28 @@ func (player *Player) HandleInteraction(t int32) {
 	player.Move_fx.Stop()
 }
 
-func (player *Player) move() {
+func (player *Player) move(world *World) {
+	maybeX := player.X
+	maybeY := player.Y
+
 	switch player.Sprite.Rotate {
 	case tic80.ROTATE_NONE:
-		player.Y = player.Y - 1
-		player.MapY = player.MapY - 1
+		maybeY -= 1
 	case tic80.ROTATE_DOWN:
-		player.Y = player.Y + 1
-		player.MapY = player.MapY + 1
+		maybeY += 1
 	case tic80.ROTATE_RIGHT:
-		player.X = player.X + 1
-		player.MapX = player.MapX + 1
+		maybeX += 1
 	case tic80.ROTATE_LEFT:
-		player.X = player.X - 1
-		player.MapX = player.MapX - 1
+		maybeX -= 1
+	}
+
+	if world.IsInBounds(maybeX, maybeY) {
+		player.X = maybeX
+		player.Y = maybeY
 	}
 }
 
-func (player *Player) Update(t int32) {
+func (player *Player) Update(t int32, world *World) {
 	if player.Moving {
 		// check sfx update
 		if player.Move_fx.IsPlaying(t) == false {
@@ -91,8 +99,7 @@ func (player *Player) Update(t int32) {
 		}
 		// check whether to advance location
 		if (t*player.Speed)%30 == 0 {
-			player.move()
+			player.move(world)
 		}
 	}
-	// update world position
 }
