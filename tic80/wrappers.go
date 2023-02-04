@@ -25,24 +25,28 @@ func Clear(color int32) {
 	_cls(color)
 }
 
-func Print(message *string, x, y, color int32, fixed bool, scale int32, alt bool) int32 {
-	return _print(toBytes(message), x, y, color, fixed, scale, alt)
+func FGet(slot int32, flagIndex int8) bool {
+	return _fget(slot, flagIndex)
 }
 
-func (mouse *MouseData) Update() {
-	_mouse(mouse)
+func Music(track_id, frame, row int32, loop, sustain bool, tempo, speed int32) {
+	_music(track_id, frame, row, loop, sustain, tempo, speed)
+}
+
+func Print(message *string, x, y, color int32, fixed bool, scale int32, alt bool) int32 {
+	return _print(toBytes(message), x, y, color, fixed, scale, alt)
 }
 
 func Trace(message *string, color int32) {
 	_trace(toBytes(message), color)
 }
 
-func (id ButtonCode) IsPressed() bool {
-	return _btn(int32(id)) > 0
+func (mouse *MouseData) Update() {
+	_mouse(mouse)
 }
 
-func Music(track_id, frame, row int32, loop, sustain bool, tempo, speed int32) {
-	_music(track_id, frame, row, loop, sustain, tempo, speed)
+func (id ButtonCode) IsPressed() bool {
+	return _btn(int32(id)) > 0
 }
 
 func PaintPixel(x, y, color int32) {

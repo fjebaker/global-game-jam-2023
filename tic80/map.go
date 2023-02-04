@@ -13,6 +13,12 @@ const (
 	MAP_MAX_Y             = 136
 	MAP_TILE_HEIGHT       = 8
 	MAP_TILE_WIDTH        = 8
+
+	MAP_EMPTY_TILE = 255
+
+	MAP_TILE_INDESTRUCTIBLE_FLAG = 0
+	MAP_TILE_DIRT_FLAG           = 1
+	MAP_TILE_ITEM_FLAG           = 2
 )
 
 func Map(tileX, tileY, offsetX, offsetY int32) {
@@ -49,4 +55,31 @@ func Map(tileX, tileY, offsetX, offsetY int32) {
 		// Unused
 		0,
 	)
+}
+
+func MGet(tileX, tileY int32) int32 {
+	// XXX: Remove after testing!
+	message := "Attempted out-of-bounds mget!"
+
+	if tileX < 0 || MAP_MAX_X < tileX+1 {
+		Trace(&message, 1)
+		return -1
+	}
+	if tileY < 0 || MAP_MAX_Y < tileY+1 {
+		Trace(&message, 1)
+		return -1
+	}
+
+	return _mget(tileX, tileY)
+}
+
+func MSet(tileX, tileY, value int32) {
+	// XXX: Remove after testing!
+	message := "Attempted out-of-bounds mset!"
+
+	if 0 <= tileX && 0 <= tileY && tileX < MAP_MAX_X && tileY < MAP_MAX_Y {
+		_mset(tileX, tileY, value)
+	} else {
+		Trace(&message, 1)
+	}
 }

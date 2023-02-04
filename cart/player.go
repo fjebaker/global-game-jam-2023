@@ -77,23 +77,30 @@ func (player *Player) HandleInteraction(t int32) {
 }
 
 func (player *Player) move(world *World) {
-	maybeX := player.X
-	maybeY := player.Y
+	maybePosX, maybePosY := player.X, player.Y
+	maybeTileX, maybeTileY := player.X, player.Y
 
 	switch player.Sprite.Rotate {
 	case tic80.ROTATE_NONE:
-		maybeY -= 1
+		maybePosY -= 1
+		maybeTileY = maybePosY
 	case tic80.ROTATE_DOWN:
-		maybeY += 1
+		maybePosY += 1
+		maybeTileY = maybePosY + PLAYER_DELTA_Y
 	case tic80.ROTATE_RIGHT:
-		maybeX += 1
+		maybePosX += 1
+		maybeTileX = maybePosX + PLAYER_DELTA_X
 	case tic80.ROTATE_LEFT:
-		maybeX -= 1
+		maybePosX -= 1
+		maybeTileX = maybePosX
 	}
 
-	if world.IsInBounds(maybeX, maybeY) {
-		player.X = maybeX
-		player.Y = maybeY
+	// What does the tile in that position contain?
+	tileIndex := world.GetMapTile(maybeTileX, maybeTileY)
+
+	if world.IsInBounds(maybePosX, maybePosY) && !world.IsIndestructible(tileIndex) {
+		player.X = maybePosX
+		player.Y = maybePosY
 	}
 }
 

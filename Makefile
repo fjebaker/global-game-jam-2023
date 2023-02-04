@@ -16,7 +16,7 @@ CHECKFILESIZE = \
         >&2 echo "!!! filesize too big" ; exit 1 ; \
     fi
 
-main:
+main: format
 	$(TINYGO) build $(GOFLAGS) -o ./cart.wasm .
 	$(WASMOPT) $(WASMOPTFLAGS) -o ./cart.wasm ./cart.wasm
 	du -hs cart.wasm
