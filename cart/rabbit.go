@@ -17,6 +17,7 @@ type Rabbit struct {
 	BubbleState int32
 	Ticker      int32
 	ItemSprite  *tic80.Sprite
+	HappySfx    tic80.SoundEffect
 }
 
 const rabbit_main_frame = 272
@@ -33,7 +34,19 @@ const (
 
 func NewRabbit(x, y, mapx, mapy int32, item_sprite *tic80.Sprite) Rabbit {
 	sprite := tic80.SquareSprite(rabbit_main_frame, 4)
-	return Rabbit{x, y, mapx, mapy, 0, sprite, false, THOUGHT_BUBBLE_SMALL, 0, item_sprite}
+	sfx := tic80.NewSoundEffect(60, 2)
+	sfx.Duration = 180
+	return Rabbit{
+		x, y,
+		mapx, mapy,
+		0,
+		sprite,
+		false,
+		THOUGHT_BUBBLE_SMALL,
+		0,
+		item_sprite,
+		sfx,
+	}
 }
 
 func (rabbit *Rabbit) switchIdleFrame() {
@@ -81,7 +94,11 @@ func (rabbit *Rabbit) Update(t int32, player *Player, game *Game) {
 	if rabbit.PointInZone(player.X, player.Y) {
 		// does the player currently have the item
 		if player.HasItem {
-
+			rabbit.HappySfx.Play()
+			player.HasItem = false
+			game.NewDesiredItem()
+			rabbit.ItemSprite.Id = int32(game.DesiredItem)
+			rabbit.SetShowItem(t, false)
 		}
 		rabbit.SetShowItem(t, true)
 	} else {

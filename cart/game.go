@@ -32,7 +32,7 @@ type Game struct {
 // Methods
 
 func NewGame() Game {
-	return Game{GAME_STATE_PLAYING, newDesiredItem()}
+	return Game{GAME_STATE_PLAYING, ITEM_RED_MUSHROOM}
 }
 
 func (game *Game) ChangeState(state GameState) {

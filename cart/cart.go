@@ -23,7 +23,7 @@ func Start() {
 	_t = 0
 	_game = NewGame()
 	_desired_item_sprite = tic80.SquareSprite(int32(_game.DesiredItem), 1)
-	_player = NewPlayer(PLAYER_START_POSITION_X, PLAYER_START_POSITION_Y)
+	_player = NewPlayer(PLAYER_START_POSITION_X, PLAYER_START_POSITION_Y, &_desired_item_sprite)
 	// rabbit holds a pointer to the desired item so that it may modify it
 	_rabbit = NewRabbit(100, 50, RABBIT_START_POSITION_X, RABBIT_START_POSITION_Y, &_desired_item_sprite)
 	_world = NewWorld(&_player)

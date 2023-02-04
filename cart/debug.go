@@ -34,5 +34,13 @@ func DebugUpdate(world *World, player *Player) {
 	tic80.Print(&tile_type, 1, 21, 15, true, 1, false)
 	tic80.Print(&in_tile_type, 1, 28, 15, true, 1, false)
 
+	has_message := "Has Item:"
+	if player.HasItem {
+		has_message = has_message + "True"
+	} else {
+		has_message = has_message + "False"
+	}
+	tic80.Print(&has_message, 1, 35, 15, true, 1, false)
+
 	tic80.PaintPixel(x-player.X+PLAYER_OFFSET_X, y-player.Y+PLAYER_OFFSET_Y, 11)
 }
