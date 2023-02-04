@@ -13,7 +13,7 @@ const (
 	MAP_TILE_WIDTH  int32 = 240
 )
 
-func Map(x, y int32) {
+func Map(x, y, offset_x, offset_y int32) {
 	var safeX, safeY int32
 
 	if x >= 0 && x <= (MAP_TILE_WIDTH-SCREEN_TILE_WIDTH) {
@@ -37,7 +37,7 @@ func Map(x, y int32) {
 		// Full screen of tiles
 		SCREEN_TILE_WIDTH, SCREEN_TILE_HEIGHT,
 		// Alway from the top left corner
-		0, 0,
+		-offset_x, offset_y,
 		// Transparency
 		unsafe.Pointer(nil), 0,
 		// Scale
