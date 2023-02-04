@@ -3,10 +3,10 @@ package cart
 import "cart/tic80"
 
 type Rabbit struct {
-	X, Y int32
+	X, Y       int32
 	MapX, MapY int32
-	Frame int32
-	Sprite tic80.Sprite
+	Frame      int32
+	Sprite     tic80.Sprite
 }
 
 const rabbit_main_frame = 272
@@ -26,7 +26,7 @@ func (rabbit *Rabbit) switchIdleFrame() {
 }
 
 func (rabbit *Rabbit) Draw(t int32) {
-	if (t % 45 == 0) {
+	if t%45 == 0 {
 		rabbit.switchIdleFrame()
 	}
 	rabbit.Sprite.Draw(rabbit.X, rabbit.Y)

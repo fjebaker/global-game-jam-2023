@@ -5,31 +5,31 @@ import (
 )
 
 var (
-	mouse  tic80.MouseData
-	t      int32
-	player Player
-	world  World
+	_mouse  tic80.MouseData
+	_t      int32
+	_player Player
+	_world  World
 )
 
 func Start() {
-	t = 1
-	player = NewPlayer(95*8, PLAYER_OFFSET_Y+1)
-	world = NewWorld(&player)
+	_t = 1
+	_player = NewPlayer(95*8, PLAYER_OFFSET_Y+1)
+	_world = NewWorld(&_player)
 }
 
 // mainloop
 func Loop() {
 	tic80.Clear(0)
-	mouse.Update()
+	_mouse.Update()
 
-	player.HandleInteraction(t)
-	player.Update(t, &world)
-	world.Update(t, &player)
+	_player.HandleInteraction(_t)
+	_player.Update(_t, &_world)
+	_world.Update(_t, &_player)
 
-	world.Draw(t)
-	player.Draw(t)
+	_world.Draw(_t)
+	_player.Draw(_t)
 
-	t = t + 1
+	_t = _t + 1
 	// avoid overflows
-	t = t % 3600
+	_t = _t % 3600
 }
