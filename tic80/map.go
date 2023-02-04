@@ -59,28 +59,18 @@ func Map(tileX, tileY, offsetX, offsetY int32) {
 }
 
 func MGet(tileX, tileY int32) int32 {
-	// XXX: Remove after testing!
-	message := "Attempted out-of-bounds mget!"
-
 	if tileX < 0 || MAP_MAX_X < tileX+1 {
-		Trace(&message, 1)
-		return -1
+		return MAP_EMPTY_TILE
 	}
 	if tileY < 0 || MAP_MAX_Y < tileY+1 {
-		Trace(&message, 1)
-		return -1
+		return MAP_EMPTY_TILE
 	}
 
 	return _mget(tileX, tileY)
 }
 
 func MSet(tileX, tileY, value int32) {
-	// XXX: Remove after testing!
-	message := "Attempted out-of-bounds mset!"
-
 	if 0 <= tileX && 0 <= tileY && tileX < MAP_MAX_X && tileY < MAP_MAX_Y {
 		_mset(tileX, tileY, value)
-	} else {
-		Trace(&message, 1)
 	}
 }
