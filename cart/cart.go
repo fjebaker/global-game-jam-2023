@@ -12,8 +12,8 @@ var (
 )
 
 func Start() {
-	_t = 1
-	_player = NewPlayer(95*8, PLAYER_OFFSET_Y+1)
+	_t = 0
+	_player = NewPlayer(PLAYER_START_POSITION_X, PLAYER_START_POSITION_Y)
 	_world = NewWorld(&_player)
 }
 
