@@ -113,32 +113,6 @@ func (player *Player) HandleInteraction(t int32) {
 	player.Move_fx.Stop()
 }
 
-func (player *Player) move(world *World) {
-	x, y := player.GetInfront()
-	// if we are trying to move out of bounds
-	// don't
-	if !world.IsInBounds(x, y) {
-		return
-	}
-	// What does the tile in that position contain?
-	tileIndex := world.GetMapTile(x, y)
-
-	if world.IsIndestructible(tileIndex) || world.IsDirt(tileIndex) {
-		return
-	}
-
-	switch player.Sprite.Rotate {
-	case tic80.ROTATE_NONE:
-		player.Y -= 1
-	case tic80.ROTATE_DOWN:
-		player.Y += 1
-	case tic80.ROTATE_RIGHT:
-		player.X += 1
-	case tic80.ROTATE_LEFT:
-		player.X -= 1
-	}
-}
-
 func (player *Player) Update(t int32, world *World) {
 	if player.Moving {
 		// check sfx update
@@ -174,6 +148,11 @@ func (player *Player) incrementFrame() {
 
 func (player *Player) move(world *World) {
 	x, y := player.GetInfront()
+	// if we are trying to move out of bounds
+	// don't
+	if !world.IsInBounds(x, y) {
+		return
+	}
 	// What does the tile in that position contain?
 	tileIndex := world.GetMapTile(x, y)
 
