@@ -57,7 +57,7 @@ func (world *World) IsItem(index int32) bool {
 }
 
 func (world *World) IsInBounds(x, y int32) bool {
-	tileX, tileY, _, _ := worldToTile(x-PLAYER_OFFSET_X, y)
+	tileX, tileY, _, _ := worldToTile(x, y)
 
 	if tileX <= WORLD_LEFT_X || WORLD_RIGHT_X <= tileX {
 		return false
