@@ -3,39 +3,41 @@ package tic80
 import "unsafe"
 
 const (
-	sHEIGHT int32 = 17
-	sWIDTH        = 30
+	SCREEN_TILE_HEIGHT  int32 = 17
+	SCREEN_TILE_WIDTH         = 30
+	SCREEN_PIXEL_HEIGHT       = 136
+	SCREEN_PIXEL_WIDTH        = 240
 )
 const (
-	mHEIGHT int32 = 136
-	mWIDTH  int32 = 240
+	MAP_TILE_HEIGHT int32 = 136
+	MAP_TILE_WIDTH  int32 = 240
 )
 
-func Map(x, y int32) {
+func Map(x, y, offset_x, offset_y int32) {
 	var safeX, safeY int32
 
-	if x >= 0 && x <= (mWIDTH-sWIDTH) {
+	if x >= 0 && x <= (MAP_TILE_WIDTH-SCREEN_TILE_WIDTH) {
 		safeX = x
 	} else if x < 0 {
 		safeX = 0
 	} else {
-		safeX = (mWIDTH - sWIDTH)
+		safeX = (MAP_TILE_WIDTH - SCREEN_TILE_WIDTH)
 	}
 
-	if y >= 0 && y <= (mHEIGHT-sHEIGHT) {
+	if y >= 0 && y <= (MAP_TILE_HEIGHT-SCREEN_TILE_HEIGHT) {
 		safeY = y
 	} else if y < 0 {
 		safeY = 0
 	} else {
-		safeY = (mHEIGHT - sHEIGHT)
+		safeY = (MAP_TILE_HEIGHT - SCREEN_TILE_HEIGHT)
 	}
 
 	_map(
 		safeX, safeY,
 		// Full screen of tiles
-		sWIDTH, sHEIGHT,
+		SCREEN_TILE_WIDTH, SCREEN_TILE_HEIGHT,
 		// Alway from the top left corner
-		0, 0,
+		-offset_x, offset_y,
 		// Transparency
 		unsafe.Pointer(nil), 0,
 		// Scale
