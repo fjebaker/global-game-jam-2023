@@ -4,6 +4,7 @@ type GameState int32
 
 const (
 	GAME_STATE_PLAYING GameState = iota
+	GAME_STATE_OVER
 )
 
 type Game struct {
@@ -17,5 +18,6 @@ func NewGame() Game {
 	return Game{GAME_STATE_PLAYING}
 }
 
-func (game *Game) Update(t int32) {
+func (game *Game) ChangeState(state GameState) {
+	game.State = state
 }

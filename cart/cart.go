@@ -31,11 +31,12 @@ func Loop() {
 	tic80.Clear(0)
 	_mouse.Update()
 
-	_player.HandleInteraction(_t)
-	_player.Update(_t, &_world)
-	_rabbit.Update(_t, &_player)
-	_world.Update(_t, &_player)
-	_game.Update(_t)
+	if _game.State != GAME_STATE_OVER {
+		_player.HandleInteraction(_t)
+		_player.Update(_t, &_world, &_game)
+		_rabbit.Update(_t, &_player, &_game)
+		_world.Update(_t, &_player, &_game)
+	}
 
 	_world.Draw(_t)
 	_rabbit.Draw(_t)
