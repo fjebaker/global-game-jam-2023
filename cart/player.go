@@ -4,6 +4,7 @@ import "cart/tic80"
 
 type Player struct {
 	X, Y    int32
+	MapX, MapY    int32
 	Frame   int32
 	Sprite  tic80.Sprite
 	Move_fx tic80.SoundEffect
@@ -11,11 +12,11 @@ type Player struct {
 	Moving  bool
 }
 
-func NewPlayer(x, y int32) Player {
+func NewPlayer(x, y, mapx, mapy int32) Player {
 	sprite := tic80.SquareSprite(258, 1)
 	sprite.Rotate = tic80.ROTATE_RIGHT
 	sfx := tic80.NewSoundEffect(61, 0)
-	return Player{x, y, 0, sprite, sfx, 10, false}
+	return Player{x, y, mapx, mapy, 0, sprite, sfx, 10, false}
 }
 
 const player_main_frame = 256
@@ -36,6 +37,7 @@ func (player *Player) Draw(t int32) {
 		player.incrementFrame()
 	}
 	// Keep the player centered on screen
+	// player.Sprite.Draw(player.X, player.Y)
 	player.Sprite.Draw(120, 114)
 }
 
@@ -68,12 +70,16 @@ func (player *Player) move() {
 	switch player.Sprite.Rotate {
 	case tic80.ROTATE_NONE:
 		player.Y = player.Y - 1
+		player.MapY = player.MapY - 1
 	case tic80.ROTATE_DOWN:
 		player.Y = player.Y + 1
+		player.MapY = player.MapY + 1
 	case tic80.ROTATE_RIGHT:
 		player.X = player.X + 1
+		player.MapX = player.MapX + 1
 	case tic80.ROTATE_LEFT:
 		player.X = player.X - 1
+		player.MapX = player.MapX - 1
 	}
 }
 
@@ -88,4 +94,5 @@ func (player *Player) Update(t int32) {
 			player.move()
 		}
 	}
+	// update world position
 }

@@ -13,7 +13,7 @@ var (
 
 func Start() {
 	t = 1
-	player = NewPlayer(95*8, 8*8)
+	player = NewPlayer(120, 114, 95*8, 8*8)
 	world = NewWorld(&player)
 }
 

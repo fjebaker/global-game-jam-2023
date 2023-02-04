@@ -11,3 +11,4 @@ cart.wasm
 *.tic
 *.vscode
 .DS_Store
+sync.sh
