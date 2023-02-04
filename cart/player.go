@@ -10,7 +10,7 @@ const (
 	PLAYER_OFFSET_X int32 = 120 - PLAYER_DELTA_X
 	PLAYER_OFFSET_Y       = 67 - PLAYER_DELTA_Y
 
-	PLAYER_START_POSITION_X = 97*8 + 4*8
+	PLAYER_START_POSITION_X = 97 * 8
 	PLAYER_START_POSITION_Y = 14 * 8
 )
 
@@ -31,7 +31,6 @@ func NewPlayer(worldX, worldY int32, desired_item_sprite *tic80.Sprite) Player {
 	sprite := tic80.SquareSprite(258, 1)
 	sprite.Rotate = tic80.ROTATE_RIGHT
 	sfx := tic80.NewSoundEffect(61, 3)
-
 	return Player{worldX, worldY, 0, sprite, sfx, 4, false, false, false, false, desired_item_sprite}
 }
 
