@@ -6,11 +6,11 @@ const (
 	WORLD_LEFT_X int32 = 0
 	// The "right edge" of the world occurs when the left edge
 	// is one screen's worth of tiles away (because of how we draw)
-	WORLD_RIGHT_X  = tic80.MAP_MAX_X - tic80.SCREEN_TILE_WIDTH
+	WORLD_RIGHT_X  = tic80.MAP_MAX_X - tic80.SCREEN_TILE_WIDTH*2
 	WORLD_GROUND_Y = 13
 	WORLD_BOTTOM_Y = tic80.MAP_MAX_Y
 
-	WORLD_BACKGROUND_X = WORLD_RIGHT_X
+	WORLD_BACKGROUND_X = tic80.MAP_MAX_X - tic80.SCREEN_TILE_WIDTH
 )
 
 type World struct {
