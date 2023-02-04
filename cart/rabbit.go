@@ -3,18 +3,6 @@ package cart
 import "cart/tic80"
 
 const (
-	ITEM_GREEN_MUSHROOM = 32
-	ITEM_RADISH         = 33
-	ITEM_COIN           = 34
-	ITEM_BLUE_MUSHROOM  = 35
-	ITEM_RED_MUSHROOM   = 48
-	ITEM_CLAY_POT       = 49
-	ITEM_RUBY_RING      = 50
-	ITEM_RED_THING      = 100
-	ITEM_GREEN_THING    = 101
-)
-
-const (
 	THOUGHT_BUBBLE_FADE  = 0
 	THOUGHT_BUBBLE_SMALL = 1
 	THOUGHT_BUBBLE_BIG   = 2
@@ -26,9 +14,10 @@ type Rabbit struct {
 	Frame       int32
 	Sprite      tic80.Sprite
 	ShowItem    bool
-	DesiredItem int32
 	BubbleState int32
 	Ticker      int32
+	ItemSprite  *tic80.Sprite
+	HappySfx    tic80.SoundEffect
 }
 
 const rabbit_main_frame = 272
@@ -43,9 +32,21 @@ const (
 	RABBIT_ITEM_OFFSET      = 4
 )
 
-func NewRabbit(x, y, mapx, mapy int32) Rabbit {
+func NewRabbit(x, y, mapx, mapy int32, item_sprite *tic80.Sprite) Rabbit {
 	sprite := tic80.SquareSprite(rabbit_main_frame, 4)
-	return Rabbit{x, y, mapx, mapy, 0, sprite, false, ITEM_RADISH, THOUGHT_BUBBLE_SMALL, 0}
+	sfx := tic80.NewSoundEffect(60, 2)
+	sfx.Duration = 180
+	return Rabbit{
+		x, y,
+		mapx, mapy,
+		0,
+		sprite,
+		false,
+		THOUGHT_BUBBLE_SMALL,
+		0,
+		item_sprite,
+		sfx,
+	}
 }
 
 func (rabbit *Rabbit) switchIdleFrame() {
@@ -58,7 +59,6 @@ func (rabbit *Rabbit) switchIdleFrame() {
 }
 
 func (rabbit *Rabbit) drawThoughtBubble(x, y, t int32) {
-	sprite := tic80.SquareSprite(rabbit.DesiredItem, 1)
 	x_item := x - RABBIT_ITEM_OFFSET
 	y_item := y - RABBIT_ITEM_OFFSET
 
@@ -67,7 +67,9 @@ func (rabbit *Rabbit) drawThoughtBubble(x, y, t int32) {
 	}
 	if rabbit.BubbleState >= THOUGHT_BUBBLE_BIG {
 		tic80.EllipseWithBorder(x_item+3, y_item+3, 7, 6, 12, 13)
-		sprite.Draw(x_item, y_item)
+		if rabbit.ItemSprite != nil {
+			rabbit.ItemSprite.Draw(x_item, y_item)
+		}
 	}
 }
 
@@ -90,11 +92,20 @@ func (rabbit *Rabbit) Update(t int32, player *Player, game *Game) {
 	rabbit.Y = rabbit.MapY - (player.Y)
 
 	if rabbit.PointInZone(player.X, player.Y) {
+		// does the player currently have the item
+		if player.HasItem {
+			rabbit.HappySfx.Play()
+			player.HasItem = false
+			game.NewDesiredItem()
+			rabbit.ItemSprite.Id = int32(game.DesiredItem)
+			rabbit.SetShowItem(t, false)
+		}
 		rabbit.SetShowItem(t, true)
 	} else {
 		rabbit.SetShowItem(t, false)
 	}
 
+	// update the state of the thought bubble
 	if rabbit.ShowItem {
 		if rabbit.BubbleState == THOUGHT_BUBBLE_SMALL {
 			if TimeSince(t, rabbit.Ticker) > THOUGHT_BUBBLE_DELAY {

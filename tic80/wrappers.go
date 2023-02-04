@@ -61,6 +61,11 @@ func RectangleBorder(x, y, width, height, color int32) {
 	_rectb(x, y, width, height, color)
 }
 
+func RectangleWithBorder(x, y, width, height, color, border_color int32) {
+	Rectangle(x, y, width, height, color)
+	RectangleBorder(x-1, y-1, width+2, height+2, border_color)
+}
+
 func Ellipse(x, y, radius_x, radius_y, color int32) {
 	_elli(x, y, radius_x, radius_y, color)
 }

@@ -10,27 +10,29 @@ const (
 	PLAYER_OFFSET_X int32 = 120 - PLAYER_DELTA_X
 	PLAYER_OFFSET_Y       = 67 - PLAYER_DELTA_Y
 
-	PLAYER_START_POSITION_X = 97 * 8
+	PLAYER_START_POSITION_X = 97*8 + 4*8
 	PLAYER_START_POSITION_Y = 14 * 8
 )
 
 type Player struct {
-	X, Y    int32
-	Frame   int32
-	Sprite  tic80.Sprite
-	Move_fx tic80.SoundEffect
-	Speed   int32
-	Dead    bool
-	Digging bool
-	Moving  bool
+	X, Y       int32
+	Frame      int32
+	Sprite     tic80.Sprite
+	Move_fx    tic80.SoundEffect
+	Speed      int32
+	Dead       bool
+	Digging    bool
+	Moving     bool
+	HasItem    bool
+	ItemSprite *tic80.Sprite
 }
 
-func NewPlayer(worldX, worldY int32) Player {
+func NewPlayer(worldX, worldY int32, desired_item_sprite *tic80.Sprite) Player {
 	sprite := tic80.SquareSprite(258, 1)
 	sprite.Rotate = tic80.ROTATE_RIGHT
 	sfx := tic80.NewSoundEffect(61, 3)
 
-	return Player{worldX, worldY, 0, sprite, sfx, 4, false, false, false}
+	return Player{worldX, worldY, 0, sprite, sfx, 4, false, false, false, false, desired_item_sprite}
 }
 
 const (
@@ -58,6 +60,8 @@ func (player *Player) Draw(t int32) {
 		player.incrementFrame()
 	}
 	player.Sprite.Draw(PLAYER_OFFSET_X, PLAYER_OFFSET_Y)
+
+	player.DrawTooltips()
 }
 
 func (player *Player) GetInfront() (int32, int32) {
@@ -144,6 +148,10 @@ func (player *Player) Update(t int32, world *World, game *Game) {
 		case world.IsItem(tileIndex):
 			world.CollectItem(x, y)
 		}
+		// check if the item was what we wanted
+		if tileIndex == int32(game.DesiredItem) {
+			player.HasItem = true
+		}
 	}
 }
 
@@ -182,5 +190,12 @@ func (player *Player) move(world *World) {
 		player.X += 1
 	case tic80.ROTATE_LEFT:
 		player.X -= 1
+	}
+}
+
+func (player *Player) DrawTooltips() {
+	tic80.RectangleWithBorder(0, 0, 12, 12, 12, 9)
+	if player.HasItem {
+		player.ItemSprite.Draw(2, 2)
 	}
 }
