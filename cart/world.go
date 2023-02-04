@@ -34,6 +34,23 @@ func (world *World) Draw(t int32) {
 	tic80.Map(world.X, world.Y, world.OffsetX, world.OffsetY)
 }
 
+func (world *World) GetMapTile(x, y int32) int32 {
+	tileX, tileY, _, _ := worldToTile(x, y)
+	return tic80.MGet(tileX, tileY)
+}
+
+func (world *World) IsDirt(index int32) bool {
+	return tic80.FGet(index, tic80.MAP_TILE_DIRT_FLAG)
+}
+
+func (world *World) IsIndestructible(index int32) bool {
+	return tic80.FGet(index, tic80.MAP_TILE_INDESTRUCTIBLE_FLAG)
+}
+
+func (world *World) IsItem(index int32) bool {
+	return tic80.FGet(index, tic80.MAP_TILE_ITEM_FLAG)
+}
+
 func (world *World) IsInBounds(x, y int32) bool {
 	tileX, tileY, _, _ := worldToTile(x-PLAYER_OFFSET_X, y)
 

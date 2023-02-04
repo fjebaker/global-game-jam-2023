@@ -3,22 +3,22 @@ package tic80
 import "unsafe"
 
 type Sprite struct {
-	Id                    int32
-	TransparentColor      uint32
-	Scale                 int32
-	Flip                  TicFlip
-	Rotate                TicRotate
-	width                 int32
-	height                int32
+	Id               int32
+	TransparentColor uint32
+	Scale            int32
+	Flip             TicFlip
+	Rotate           TicRotate
+	width            int32
+	height           int32
 }
 
 func SquareSprite(id, width int32) Sprite {
 	s := Sprite{
-		Id:                    id,
-		width:                 width,
-		height:                width,
-		TransparentColor:      0,
-		Scale:                 1,
+		Id:               id,
+		width:            width,
+		height:           width,
+		TransparentColor: 0,
+		Scale:            1,
 	}
 	return s
 }
