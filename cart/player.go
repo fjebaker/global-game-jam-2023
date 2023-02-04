@@ -13,7 +13,7 @@ type Player struct {
 
 func NewPlayer(x, y int32) Player {
 	sprite := tic80.SquareSprite(258, 1)
-	sprite.Rotate = tic80.ROTATE_NONE
+	sprite.Rotate = tic80.ROTATE_RIGHT
 	sfx := tic80.NewSoundEffect(61, 0)
 	return Player{x, y, 0, sprite, sfx, 10, false}
 }
@@ -35,7 +35,8 @@ func (player *Player) Draw(t int32) {
 	if t%mod == 0 {
 		player.incrementFrame()
 	}
-	player.Sprite.Draw(player.X, player.Y)
+	// Keep the player centered on screen
+	player.Sprite.Draw(120, 114)
 }
 
 func (player *Player) HandleInteraction(t int32) {
