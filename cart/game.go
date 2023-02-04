@@ -40,7 +40,7 @@ func NewGame() Game {
 func (game *Game) ChangeState(state GameState) {
 	game.State = state
 	if state == GAME_STATE_OVER {
-		sfx := tic80.NewSoundEffect(59, 3)
+		sfx := tic80.NewSoundEffect(59, 3, 30)
 		sfx.Play()
 		tic80.Music(1, -1, -1, true, false, -1, -1)
 	}

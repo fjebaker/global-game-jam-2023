@@ -30,9 +30,9 @@ type Player struct {
 func NewPlayer(worldX, worldY int32, desired_item_sprite *tic80.Sprite) Player {
 	sprite := tic80.SquareSprite(258, 1)
 	sprite.Rotate = tic80.ROTATE_RIGHT
-	sfx := tic80.NewSoundEffect(61, 3)
+	move_fx := tic80.NewSoundEffect(61, 3, 30)
 
-	return Player{worldX, worldY, 0, sprite, sfx, 4, false, false, false, false, desired_item_sprite}
+	return Player{worldX, worldY, 0, sprite, move_fx, 4, false, false, false, false, desired_item_sprite}
 }
 
 const (
