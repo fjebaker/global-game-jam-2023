@@ -20,6 +20,7 @@ type Player struct {
 	Sprite  tic80.Sprite
 	Move_fx tic80.SoundEffect
 	Speed   int32
+	Digging bool
 	Moving  bool
 }
 
@@ -28,7 +29,7 @@ func NewPlayer(worldX, worldY int32) Player {
 	sprite.Rotate = tic80.ROTATE_RIGHT
 	sfx := tic80.NewSoundEffect(61, 0)
 
-	return Player{worldX, worldY, 0, sprite, sfx, 10, false}
+	return Player{worldX, worldY, 0, sprite, sfx, 10, false, false}
 }
 
 const player_main_frame = 256
@@ -52,6 +53,9 @@ func (player *Player) Draw(t int32) {
 }
 
 func (player *Player) HandleInteraction(t int32) {
+	// We always check for digging
+	player.Digging = tic80.BUTTON_B.IsPressed()
+
 	if tic80.BUTTON_UP.IsPressed() {
 		player.Sprite.Rotate = tic80.ROTATE_NONE
 		player.Moving = true
@@ -95,12 +99,20 @@ func (player *Player) move(world *World) {
 		maybeTileX = maybePosX
 	}
 
-	// What does the tile in that position contain?
+	// What does the tile in the movement direction contain?
 	tileIndex := world.GetMapTile(maybeTileX, maybeTileY)
 
 	if world.IsInBounds(maybePosX, maybePosY) && !world.IsIndestructible(tileIndex) {
-		player.X = maybePosX
-		player.Y = maybePosY
+		dirt := world.IsDirt(tileIndex)
+
+		if !dirt || (dirt && player.Digging) {
+			player.X = maybePosX
+			player.Y = maybePosY
+
+			if dirt && player.Digging {
+				world.DigTile(maybeTileX, maybeTileY)
+			}
+		}
 	}
 }
 
