@@ -13,7 +13,7 @@ var (
 
 func Start() {
 	t = 1
-	player = NewPlayer(120, 114, 95*8, 8*8)
+	player = NewPlayer(95*8, PLAYER_OFFSET_Y+1)
 	world = NewWorld(&player)
 }
 
@@ -23,7 +23,7 @@ func Loop() {
 	mouse.Update()
 
 	player.HandleInteraction(t)
-	player.Update(t)
+	player.Update(t, &world)
 	world.Update(t, &player)
 
 	world.Draw(t)
