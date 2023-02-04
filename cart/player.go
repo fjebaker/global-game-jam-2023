@@ -20,6 +20,7 @@ type Player struct {
 	Sprite  tic80.Sprite
 	Move_fx tic80.SoundEffect
 	Speed   int32
+	Dead    bool
 	Digging bool
 	Moving  bool
 }
@@ -29,13 +30,15 @@ func NewPlayer(worldX, worldY int32) Player {
 	sprite.Rotate = tic80.ROTATE_RIGHT
 	sfx := tic80.NewSoundEffect(61, 3)
 
-	return Player{worldX, worldY, 0, sprite, sfx, 4, false, false}
+	return Player{worldX, worldY, 0, sprite, sfx, 4, false, false, false}
 }
 
-const player_main_frame = 256
-
-// DEBUG FRAME
-// const player_main_frame = 336
+const (
+	PLAYER_MAIN_FRAME = 256
+	// DEBUG FRAME
+	// PLAYER_MAIN_FRAME = 336
+	PLAYER_DEAD_FRAME = 261
+)
 
 ///////////////////////////////////////////////////////////////////////////////
 // Methods
@@ -113,7 +116,7 @@ func (player *Player) HandleInteraction(t int32) {
 	player.Move_fx.Stop()
 }
 
-func (player *Player) Update(t int32, world *World) {
+func (player *Player) Update(t int32, world *World, game *Game) {
 	if player.Moving {
 		// check sfx update
 		if player.Move_fx.IsPlaying(t, OVERFLOW_MODULO_TIME) == false {
@@ -125,10 +128,16 @@ func (player *Player) Update(t int32, world *World) {
 		}
 	}
 
+	// check what is infront
+	x, y := player.GetInfront()
+	tileIndex := world.GetMapTile(x, y)
+
+	if world.IsDeadly(tileIndex) {
+		game.ChangeState(GAME_STATE_OVER)
+		player.Dead = true
+	}
+
 	if player.Digging {
-		// check what is infront
-		x, y := player.GetInfront()
-		tileIndex := world.GetMapTile(x, y)
 		switch {
 		case world.IsDirt(tileIndex):
 			world.DigTile(x, y)
@@ -142,8 +151,12 @@ func (player *Player) Update(t int32, world *World) {
 // Utils
 
 func (player *Player) incrementFrame() {
-	player.Frame = (player.Frame + 1) % 5
-	player.Sprite.Id = player_main_frame + player.Frame
+	if !player.Dead {
+		player.Frame = (player.Frame + 1) % 5
+		player.Sprite.Id = PLAYER_MAIN_FRAME + player.Frame
+	} else {
+		player.Sprite.Id = PLAYER_DEAD_FRAME
+	}
 }
 
 func (player *Player) move(world *World) {

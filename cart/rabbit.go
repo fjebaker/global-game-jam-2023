@@ -37,7 +37,7 @@ func (rabbit *Rabbit) Draw(t int32) {
 	rabbit.Sprite.Draw(rabbit.X+PLAYER_OFFSET_X, rabbit.Y+PLAYER_OFFSET_Y)
 }
 
-func (rabbit *Rabbit) Update(t int32, player *Player) {
+func (rabbit *Rabbit) Update(t int32, player *Player, game *Game) {
 	rabbit.X = rabbit.MapX - (player.X)
 	rabbit.Y = rabbit.MapY - (player.Y)
 }
