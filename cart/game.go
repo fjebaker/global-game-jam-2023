@@ -1,5 +1,7 @@
 package cart
 
+import "cart/tic80"
+
 type GameState int32
 
 const (
@@ -20,4 +22,8 @@ func NewGame() Game {
 
 func (game *Game) ChangeState(state GameState) {
 	game.State = state
+	if state == GAME_STATE_OVER {
+		sfx := tic80.NewSoundEffect(59, 3)
+		sfx.Play()
+	}
 }
