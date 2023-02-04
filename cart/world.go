@@ -81,7 +81,7 @@ func (world *World) IsInBounds(x, y int32) bool {
 	if tileX <= WORLD_LEFT_X || WORLD_RIGHT_X <= tileX {
 		return false
 	}
-	if y <= PLAYER_OFFSET_Y || WORLD_BOTTOM_Y <= tileY {
+	if tileY <= WORLD_GROUND_Y || WORLD_BOTTOM_Y <= tileY {
 		return false
 	}
 
@@ -93,7 +93,6 @@ func (world *World) Update(t int32, player *Player) {
 		player.X-PLAYER_OFFSET_X,
 		player.Y-PLAYER_OFFSET_Y,
 	)
-
 	world.X = tileX
 	world.Y = tileY
 	world.OffsetX = offsetX
