@@ -45,7 +45,11 @@ func (player *Player) incrementFrame() {
 func (player *Player) Draw(t int32) {
 	var mod int32
 	if player.Moving {
-		mod = 5
+		if player.Speed == 1 {
+			mod = 2
+		} else {
+			mod = 5
+		}
 	} else {
 		mod = 12
 	}
@@ -61,8 +65,10 @@ func (player *Player) HandleInteraction(t int32) {
 
 	if tic80.BUTTON_A.IsPressed() {
 		player.Speed = 1
+		player.Move_fx.Note = 2
 	} else {
 		player.Speed = 3
+		player.Move_fx.Note = 0
 	}
 
 	if tic80.BUTTON_UP.IsPressed() {
