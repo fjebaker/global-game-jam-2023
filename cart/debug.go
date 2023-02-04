@@ -19,7 +19,7 @@ func DebugUpdate(world *World, player *Player) {
 
 	xw, yw, xo, yo := worldToTile(player.X, player.Y)
 
-	location := "Player: x:" + xs + " y:" + ys
+	location := "Player: x:" + xs + " y:" + ys + " speed:" + strconv.Itoa(int(player.Speed))
 	world_location := "Tile: x:" + strconv.Itoa(int(xw)) + " y:" + strconv.Itoa(int(yw))
 	offset_location := "Offset: x:" + strconv.Itoa(int(xo)) + " y:" + strconv.Itoa(int(yo))
 	tile := world.GetMapTile(player.X, player.Y)

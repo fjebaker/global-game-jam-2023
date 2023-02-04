@@ -29,7 +29,7 @@ func NewPlayer(worldX, worldY int32) Player {
 	sprite.Rotate = tic80.ROTATE_RIGHT
 	sfx := tic80.NewSoundEffect(61, 0)
 
-	return Player{worldX, worldY, 0, sprite, sfx, 10, false, false}
+	return Player{worldX, worldY, 0, sprite, sfx, 4, false, false}
 }
 
 const player_main_frame = 256
@@ -59,6 +59,12 @@ func (player *Player) HandleInteraction(t int32) {
 	// We always check for digging
 	player.Digging = tic80.BUTTON_B.IsPressed()
 
+	if tic80.BUTTON_A.IsPressed() {
+		player.Speed = 1
+	} else {
+		player.Speed = 3
+	}
+
 	if tic80.BUTTON_UP.IsPressed() {
 		player.Sprite.Rotate = tic80.ROTATE_NONE
 		player.Moving = true
@@ -85,6 +91,11 @@ func (player *Player) HandleInteraction(t int32) {
 
 func (player *Player) move(world *World) {
 	x, y := player.GetInfront()
+	// if we are trying to move out of bounds
+	// don't
+	if !world.IsInBounds(x, y) {
+		return
+	}
 	// What does the tile in that position contain?
 	tileIndex := world.GetMapTile(x, y)
 
@@ -111,7 +122,7 @@ func (player *Player) Update(t int32, world *World) {
 			player.Move_fx.PlayRecordTime(t)
 		}
 		// check whether to advance location
-		if (t*player.Speed)%30 == 0 {
+		if ((t*15)/10)%player.Speed == 0 {
 			player.move(world)
 		}
 	}
