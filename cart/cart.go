@@ -21,6 +21,7 @@ func Start() {
 	_player = NewPlayer(PLAYER_START_POSITION_X, PLAYER_START_POSITION_Y)
 	_rabbit = NewRabbit(100, 50, RABBIT_START_POSITION_X, RABBIT_START_POSITION_Y)
 	_world = NewWorld(&_player)
+	tic80.Music(0, -1, -1, true, false, -1, -1)
 }
 
 // mainloop
