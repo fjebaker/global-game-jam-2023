@@ -4,6 +4,10 @@ import (
 	"cart/tic80"
 )
 
+const (
+	OVERFLOW_MODULO_TIME int32 = 3600
+)
+
 var (
 	_mouse  tic80.MouseData
 	_t      int32
@@ -35,5 +39,5 @@ func Loop() {
 
 	_t = _t + 1
 	// avoid overflows
-	_t = _t % 3600
+	_t = _t % OVERFLOW_MODULO_TIME
 }
