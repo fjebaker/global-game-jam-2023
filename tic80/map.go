@@ -17,6 +17,7 @@ const (
 
 func Map(tileX, tileY, offsetX, offsetY int32) {
 	var safeX, safeY int32
+	transparent := 0
 
 	if tileX >= 0 && tileX <= (MAP_MAX_X-SCREEN_TILE_WIDTH) {
 		safeX = tileX
@@ -41,7 +42,7 @@ func Map(tileX, tileY, offsetX, offsetY int32) {
 		// Alway from the top left corner
 		-offsetX, -offsetY,
 		// Transparency
-		unsafe.Pointer(nil), 0,
+		unsafe.Pointer(&transparent), 1,
 		// Scale
 		1,
 		// Unused
