@@ -19,6 +19,7 @@ const (
 	MAP_TILE_INDESTRUCTIBLE_FLAG = 0
 	MAP_TILE_DIRT_FLAG           = 1
 	MAP_TILE_ITEM_FLAG           = 2
+	MAP_TILE_DEADLY_FLAG         = 4
 )
 
 func Map(tileX, tileY, offsetX, offsetY int32) {
