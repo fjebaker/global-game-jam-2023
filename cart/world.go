@@ -120,7 +120,7 @@ func (world *World) IsInBounds(x, y int32) bool {
 	return true
 }
 
-func (world *World) Update(t int32, player *Player, game *Game) {
+func (world *World) Update(t int32, game *Game, player *Player) {
 	tileX, tileY, offsetX, offsetY := worldToTile(
 		player.X-PLAYER_OFFSET_X,
 		player.Y-PLAYER_OFFSET_Y,

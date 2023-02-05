@@ -135,7 +135,7 @@ func (player *Player) HandleInteraction(t int32) {
 	player.Move_fx.Stop()
 }
 
-func (player *Player) Update(t int32, world *World, game *Game, desired *RetrievableItem, rabbit *Rabbit) {
+func (player *Player) Update(t int32, game *Game, world *World, desired *RetrievableItem, rabbit *Rabbit) {
 	if rabbit.IsDead() && rabbit.PointInZone(player.X, player.Y) {
 		game.ChangeState(GAME_STATE_OVER)
 		player.SetDead()

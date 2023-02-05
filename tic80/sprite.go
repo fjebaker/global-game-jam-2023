@@ -24,10 +24,17 @@ func SquareSprite(id, width int32) Sprite {
 }
 
 func (s *Sprite) Draw(x, y int32) {
+	dx, dy := x, y
+	if s.Scale > 1 {
+		offset := s.width * 4 * s.Scale
+		dx -= offset
+		dy -= offset
+	}
+
 	_spr(
 		s.Id,
-		x,
-		y,
+		dx,
+		dy,
 		unsafe.Pointer(&s.TransparentColor),
 		1,
 		s.Scale,

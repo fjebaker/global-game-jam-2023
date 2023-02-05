@@ -15,6 +15,7 @@ const (
 	RABBIT_THANKS_FRAME    = 352
 	RABBIT_THANKS_SIZE     = 2
 	RABBIT_THANKS_DURATION = 30
+	RABBIT_WIN_DURATION    = 120
 
 	RABBIT_THANKS_SOUND   = 60
 	RABBIT_SOUND_CHANNEL  = 2
@@ -24,18 +25,22 @@ const (
 	RABBIT_HURT_HEALTH     = 60  // at which point new frames used
 	RABBIT_STARVING_FACTOR = 10  // in frames; multiplied by tree's life bar
 	RABBIT_HEALING_AMOUNT  = 20
+
+	RABBIT_HEALINGS_WIN = 10 // Number of healings to win the game
 )
 
 type Rabbit struct {
-	X, Y       int32
-	MapX, MapY int32
-	Frame      int32
-	Sprite     tic80.Sprite
-	HappySfx   tic80.SoundEffect
-	Heart      TimedSprite
-	ShowHeart  bool
-	Health     int32
-	DeathClock int32
+	X, Y           int32
+	MapX, MapY     int32
+	Frame          int32
+	Sprite         tic80.Sprite
+	HappySfx       tic80.SoundEffect
+	Heart          TimedSprite
+	ShowHeart      bool
+	ShowWin        bool
+	Health         int32
+	HealsRemaining int32
+	DeathClock     int32
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -57,7 +62,9 @@ func NewRabbit(x, y, mapx, mapy int32) Rabbit {
 			RABBIT_THANKS_DURATION,
 		),
 		false,
+		false,
 		RABBIT_STARTING_HEALTH,
+		RABBIT_HEALINGS_WIN,
 		0,
 	}
 }
@@ -65,6 +72,25 @@ func NewRabbit(x, y, mapx, mapy int32) Rabbit {
 func (rabbit *Rabbit) Draw() {
 	rabbit.Sprite.Draw(rabbit.X, rabbit.Y)
 	rabbit.Heart.Draw(rabbit.X+6, rabbit.Y+6)
+}
+
+func (rabbit *Rabbit) IsDead() bool {
+	return rabbit.Health == 0
+}
+
+func (rabbit *Rabbit) Heal(game *Game) {
+	rabbit.HappySfx.Play()
+	rabbit.ShowHeart = true
+	rabbit.Health = rabbit.Health + RABBIT_HEALING_AMOUNT
+
+	if rabbit.HealsRemaining > 0 {
+		rabbit.HealsRemaining -= 1
+		if rabbit.HealsRemaining == 0 {
+			game.ChangeState(GAME_STATE_WIN)
+			rabbit.ShowHeart = false
+			rabbit.ShowWin = true
+		}
+	}
 }
 
 func (rabbit *Rabbit) PointInZone(x, y int32) bool {
@@ -76,7 +102,7 @@ func (rabbit *Rabbit) PointInZone(x, y int32) bool {
 	return x_condition && y_condition
 }
 
-func (rabbit *Rabbit) Update(t int32, player *Player, game *Game) {
+func (rabbit *Rabbit) Update(t int32, game *Game, player *Player) {
 	rabbit.X = rabbit.MapX - (player.X) + PLAYER_OFFSET_X
 	rabbit.Y = rabbit.MapY - (player.Y) + PLAYER_OFFSET_Y
 
@@ -89,6 +115,11 @@ func (rabbit *Rabbit) Update(t int32, player *Player, game *Game) {
 	if rabbit.ShowHeart {
 		rabbit.Heart.StartShowing(t)
 		rabbit.ShowHeart = false
+	} else if rabbit.ShowWin {
+		rabbit.Heart.WithZoom = true
+		rabbit.Heart.Duration = RABBIT_WIN_DURATION
+		rabbit.Heart.StartShowing(t)
+		rabbit.ShowWin = false
 	}
 
 	// Run the animations
@@ -102,6 +133,11 @@ func (rabbit *Rabbit) Update(t int32, player *Player, game *Game) {
 	// if we died this frame, load dead assets
 	if rabbit.IsDead() {
 		rabbit.Sprite.Id = RABBIT_DEAD_FRAME
+	}
+
+	// Deal with game win
+	if game.State == GAME_STATE_WIN && !rabbit.Heart.Show {
+		// When we've won, and the heart has stopped animating, go on
 	}
 }
 
@@ -127,14 +163,4 @@ func (rabbit *Rabbit) switchIdleFrame() {
 	} else {
 		rabbit.Sprite.Id = RABBIT_MAIN_FRAME + (4 * rabbit.Frame)
 	}
-}
-
-func (rabbit *Rabbit) IsDead() bool {
-	return rabbit.Health == 0
-}
-
-func (rabbit *Rabbit) Heal() {
-	rabbit.HappySfx.Play()
-	rabbit.ShowHeart = true
-	rabbit.Health = rabbit.Health + RABBIT_HEALING_AMOUNT
 }

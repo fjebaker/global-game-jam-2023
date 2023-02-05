@@ -50,7 +50,7 @@ func (item *RetrievableItem) Id() int32 {
 	return item.Sprite.Id
 }
 
-func (item *RetrievableItem) Update(t int32, player *Player, rabbit *Rabbit) {
+func (item *RetrievableItem) Update(t int32, game *Game, player *Player, rabbit *Rabbit) {
 	item.ShowInTooltip = player.HasItem
 	is_in_zone := rabbit.PointInZone(player.X, player.Y)
 	is_dead := rabbit.IsDead()
@@ -58,7 +58,7 @@ func (item *RetrievableItem) Update(t int32, player *Player, rabbit *Rabbit) {
 	if player.HasItem && is_in_zone && !is_dead {
 		player.HasItem = false
 		item.Sprite.Id = int32(newDesiredItem())
-		rabbit.Heal()
+		rabbit.Heal(game)
 	}
 
 	// propagate updates
