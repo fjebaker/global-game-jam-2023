@@ -9,6 +9,8 @@ import (
 var (
 	IO_RAM   = (*[0x18000]byte)(unsafe.Pointer(uintptr(0x00000)))
 	FREE_RAM = (*[0x28000]byte)(unsafe.Pointer(uintptr(0x18000)))
+
+	MAP_TILES = (*[0x7F80]byte)(unsafe.Pointer(uintptr(0x08000)))
 )
 
 // ButtonCode represents a button id

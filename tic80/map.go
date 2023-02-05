@@ -1,6 +1,8 @@
 package tic80
 
-import "unsafe"
+import (
+	"unsafe"
+)
 
 const (
 	SCREEN_TILE_HEIGHT  int32 = 17
@@ -19,6 +21,7 @@ const (
 	MAP_TILE_INDESTRUCTIBLE_FLAG = 0
 	MAP_TILE_DIRT_FLAG           = 1
 	MAP_TILE_ITEM_FLAG           = 2
+	MAP_TILE_TREE_FLAG           = 3
 	MAP_TILE_DEADLY_FLAG         = 4
 )
 
@@ -72,5 +75,15 @@ func MGet(tileX, tileY int32) int32 {
 func MSet(tileX, tileY, value int32) {
 	if 0 <= tileX && 0 <= tileY && tileX < MAP_MAX_X && tileY < MAP_MAX_Y {
 		_mset(tileX, tileY, value)
+	}
+}
+
+func MSetRange(start, stop, offset byte) {
+	var tile byte
+	for idx := 0; idx < cap(MAP_TILES); idx++ {
+		tile = MAP_TILES[idx]
+		if start <= tile && tile <= stop {
+			MAP_TILES[idx] = tile + offset
+		}
 	}
 }
