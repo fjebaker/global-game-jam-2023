@@ -65,7 +65,9 @@ func (world *World) DigTree(x, y int32) {
 	if world.TreeLife > 0 {
 		world.TreeLife -= 1
 		start, stop, offset := treeLifeDetails(world.TreeLife)
-		tic80.MSetRange(start, stop, offset)
+		if offset > 0 {
+			tic80.MSetRange(start, stop, offset)
+		}
 	}
 }
 
@@ -128,16 +130,28 @@ func (world *World) Update(t int32, player *Player, game *Game) {
 ///////////////////////////////////////////////////////////////////////////////
 // Utils
 
-func treeLifeDetails(life int8) (byte, byte, byte) {
+func treeLifeDetails(life int8) (start byte, stop byte, offset byte) {
 	switch life {
 	case 3:
-		return 16, 31, 128
+		start = 16
+		stop = 31
+		offset = 128
+		return
 	case 2:
-		return 144, 159, 16
+		start = 144
+		stop = 159
+		offset = 16
+		return
 	case 1:
-		return 160, 175, 16
+		start = 160
+		stop = 175
+		offset = 16
+		return
 	case 0:
-		return 176, 191, 0
+		start = 176
+		stop = 191
+		offset = 0
+		return
 	// just in case
 	default:
 		return 0, 0, 0
