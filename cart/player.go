@@ -168,7 +168,7 @@ func (player *Player) Update(t int32, world *World, game *Game, desired *Retriev
 			world.DigTile(x, y)
 			player.startEating(t)
 		case world.IsTree(tileIndex):
-			world.DigTree(x, y)
+			world.DigTree(x, y, game)
 			player.startEating(t)
 		case world.IsItem(tileIndex):
 			world.CollectItem(x, y)
