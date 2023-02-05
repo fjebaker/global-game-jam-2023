@@ -18,6 +18,8 @@ type Rabbit struct {
 	Ticker      int32
 	ItemSprite  *tic80.Sprite
 	HappySfx    tic80.SoundEffect
+	HeartSprite tic80.Sprite
+	ShowHeart   bool
 }
 
 const rabbit_main_frame = 272
@@ -35,6 +37,7 @@ const (
 func NewRabbit(x, y, mapx, mapy int32, item_sprite *tic80.Sprite) Rabbit {
 	sprite := tic80.SquareSprite(rabbit_main_frame, 4)
 	sfx := tic80.NewSoundEffect(60, 2, 180)
+	heart_sprite := tic80.SquareSprite(352, 2)
 	return Rabbit{
 		x, y,
 		mapx, mapy,
@@ -45,6 +48,7 @@ func NewRabbit(x, y, mapx, mapy int32, item_sprite *tic80.Sprite) Rabbit {
 		0,
 		item_sprite,
 		sfx,
+		heart_sprite, false,
 	}
 }
 
@@ -84,6 +88,10 @@ func (rabbit *Rabbit) Draw(t int32) {
 	if rabbit.ShowItem {
 		rabbit.drawThoughtBubble(x, y, t)
 	}
+
+	if rabbit.ShowHeart {
+		rabbit.HeartSprite.Draw(x+6, y+8)
+	}
 }
 
 func (rabbit *Rabbit) Update(t int32, player *Player, game *Game) {
@@ -97,24 +105,33 @@ func (rabbit *Rabbit) Update(t int32, player *Player, game *Game) {
 			player.HasItem = false
 			game.NewDesiredItem()
 			rabbit.ItemSprite.Id = int32(game.DesiredItem)
-			rabbit.SetShowItem(t, false)
+			rabbit.Ticker = t
+			rabbit.ShowHeart = true
 		}
 		rabbit.SetShowItem(t, true)
 	} else {
 		rabbit.SetShowItem(t, false)
 	}
 
+	dT := TimeSince(t, rabbit.Ticker)
+	// update heart frames
+	if rabbit.ShowHeart {
+		if dT > THOUGHT_BUBBLE_DELAY {
+			rabbit.ShowHeart = false
+		}
+	}
+
 	// update the state of the thought bubble
 	if rabbit.ShowItem {
 		if rabbit.BubbleState == THOUGHT_BUBBLE_SMALL {
-			if TimeSince(t, rabbit.Ticker) > THOUGHT_BUBBLE_DELAY {
+			if dT > THOUGHT_BUBBLE_DELAY {
 				rabbit.BubbleState = THOUGHT_BUBBLE_BIG
 			}
 		} else if rabbit.BubbleState == THOUGHT_BUBBLE_FADE {
 			rabbit.BubbleState = THOUGHT_BUBBLE_BIG
 		}
 	} else if rabbit.BubbleState == THOUGHT_BUBBLE_FADE {
-		if TimeSince(t, rabbit.Ticker) > THOUGHT_BUBBLE_DELAY {
+		if dT > THOUGHT_BUBBLE_DELAY {
 			rabbit.BubbleState = THOUGHT_BUBBLE_SMALL
 		}
 	}

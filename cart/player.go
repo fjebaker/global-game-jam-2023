@@ -10,7 +10,7 @@ const (
 	PLAYER_OFFSET_X int32 = 120 - PLAYER_DELTA_X
 	PLAYER_OFFSET_Y       = 67 - PLAYER_DELTA_Y
 
-	PLAYER_START_POSITION_X = 97*8 + 4*8
+	PLAYER_START_POSITION_X = 97 * 8
 	PLAYER_START_POSITION_Y = 14 * 8
 
 	DIRT_EAT_TIME = 10
@@ -218,8 +218,8 @@ func (player *Player) move(world *World) {
 }
 
 func (player *Player) DrawTooltips() {
-	tic80.RectangleWithBorder(0, 0, 12, 12, 12, 9)
+	tic80.RectangleWithBorder(2, 2, 12, 12, 0, 9)
 	if player.HasItem {
-		player.ItemSprite.Draw(2, 2)
+		player.ItemSprite.Draw(4, 4)
 	}
 }
