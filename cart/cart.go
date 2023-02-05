@@ -26,7 +26,8 @@ func Start() {
 	_player = NewPlayer(PLAYER_START_POSITION_X, PLAYER_START_POSITION_Y)
 	_rabbit = NewRabbit(100, 50, RABBIT_START_POSITION_X, RABBIT_START_POSITION_Y)
 	_world = NewWorld(&_player)
-	tic80.Music(0, -1, -1, true, false, -1, -1)
+
+	tic80.Music(GAME_PLAY_MUSIC, -1, -1, true, false, -1, -1)
 }
 
 // mainloop
@@ -43,10 +44,10 @@ func Loop() {
 		_world.Update(_t, &_player, &_game)
 	}
 
-	_world.Draw(_t)
-	_rabbit.Draw(_t)
-	_player.Draw(_t)
-	_desired_item.Draw(_t)
+	_world.Draw()
+	_rabbit.Draw()
+	_player.Draw()
+	_desired_item.Draw()
 
 	_t = _t + 1
 	// avoid overflows

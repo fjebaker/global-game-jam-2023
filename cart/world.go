@@ -31,6 +31,7 @@ func (world *World) CollectItem(x, y int32) {
 	tileX, tileY, _, _ := worldToTile(x, y)
 	tic80.MSet(tileX, tileY, tic80.MAP_EMPTY_TILE)
 
+	// NOTE: This only works for items up to 2x2 tiles
 	for dy := int32(-1); dy < 2; dy++ {
 		for dx := int32(-1); dx < 2; dx++ {
 			index := tic80.MGet(tileX+dx, tileY+dy)
@@ -47,7 +48,7 @@ func (world *World) DigTile(x, y int32) {
 	tic80.MSet(tileX, tileY, tic80.MAP_EMPTY_TILE)
 }
 
-func (world *World) Draw(t int32) {
+func (world *World) Draw() {
 	// The background is the entire right screenwidth of the map tiles
 	tic80.Map(WORLD_BACKGROUND_X, world.Y, 0, world.OffsetY)
 	// World.X, World.Y is the tile coordinates of the upper left corner
