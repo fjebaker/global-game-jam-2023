@@ -47,6 +47,7 @@ publish: cart
 	$(TIC80) --cli --fs . --skip --cmd 'load game.tic & export html $(HTML_ZIP) & exit'
 	git switch $(DEPLOY_BRANCH)
 	unzip -f $(HTML_ZIP)
+	rm -f $(HTML_ZIP)
 	git add $(DEPLOY_FILES)
 	git commit -m "$$(git log --format=format:%H main -n 1)"
 	git push origin $(DEPLOY_BRANCH)
