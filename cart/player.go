@@ -151,7 +151,7 @@ func (player *Player) Update(t int32, world *World, game *Game, desired *Retriev
 	finished_eating := player.Eating && TimeSince(t, player.EatStartTime) >= player.EatTimeDelta
 	if finished_eating {
 		player.Eating = false
-		world.Dig(x, y)
+		world.Dig(x, y, game)
 	}
 
 	// disallow movement when eating

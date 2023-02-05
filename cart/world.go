@@ -63,13 +63,13 @@ func (world *World) DigTree(x, y int32, game *Game) {
 	}
 }
 
-func (world *World) Dig(x, y int32) {
+func (world *World) Dig(x, y int32, game *Game) {
 	tileIndex := world.GetMapTile(x, y)
 	switch {
 	case world.IsDirt(tileIndex):
 		world.DigTile(x, y)
 	case world.IsTree(tileIndex):
-		world.DigTree(x, y)
+		world.DigTree(x, y, game)
 	}
 }
 
