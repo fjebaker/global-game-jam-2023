@@ -53,16 +53,16 @@ func (item *RetrievableItem) Id() int32 {
 func (item *RetrievableItem) Update(t int32, player *Player, rabbit *Rabbit) {
 	item.ShowInTooltip = player.HasItem
 	is_in_zone := rabbit.PointInZone(player.X, player.Y)
+	is_dead := rabbit.IsDead()
 
-	if player.HasItem && is_in_zone {
+	if player.HasItem && is_in_zone && !is_dead {
 		player.HasItem = false
 		item.Sprite.Id = int32(newDesiredItem())
-		rabbit.HappySfx.Play()
-		rabbit.ShowHeart = true
+		rabbit.Heal()
 	}
 
 	// propagate updates
-	item.Bubble.Update(t, rabbit, is_in_zone)
+	item.Bubble.Update(t, rabbit, is_in_zone && !is_dead)
 }
 
 ///////////////////////////////////////////////////////////////////////////////

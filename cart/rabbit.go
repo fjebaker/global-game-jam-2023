@@ -9,7 +9,9 @@ const (
 	RABBIT_DETECTION_ZONE = 30
 
 	RABBIT_MAIN_FRAME      = 272
-	RABBIT_MAIN_SIZE       = 4
+	RABBIT_HURT_FRAME      = 384
+	RABBIT_DEAD_FRAME      = 280
+	RABBIT_FRAME_SIZE      = 4
 	RABBIT_THANKS_FRAME    = 352
 	RABBIT_THANKS_SIZE     = 2
 	RABBIT_THANKS_DURATION = 30
@@ -17,6 +19,11 @@ const (
 	RABBIT_THANKS_SOUND   = 60
 	RABBIT_SOUND_CHANNEL  = 2
 	RABBIT_SOUND_DURATION = (3 * 60)
+
+	RABBIT_STARTING_HEALTH = 120 // in seconds
+	RABBIT_HURT_HEALTH     = 60  // at which point new frames used
+	RABBIT_STARVING_RATE   = 60  // in frames
+	RABBIT_HEALING_AMOUNT  = 20
 )
 
 type Rabbit struct {
@@ -27,13 +34,15 @@ type Rabbit struct {
 	HappySfx   tic80.SoundEffect
 	Heart      TimedSprite
 	ShowHeart  bool
+	Health     int32
+	DeathClock int32
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 // Methods
 
 func NewRabbit(x, y, mapx, mapy int32) Rabbit {
-	sprite := tic80.SquareSprite(RABBIT_MAIN_FRAME, RABBIT_MAIN_SIZE)
+	sprite := tic80.SquareSprite(RABBIT_MAIN_FRAME, RABBIT_FRAME_SIZE)
 	sfx := tic80.NewSoundEffect(
 		RABBIT_THANKS_SOUND, RABBIT_SOUND_CHANNEL, RABBIT_SOUND_DURATION,
 	)
@@ -48,6 +57,8 @@ func NewRabbit(x, y, mapx, mapy int32) Rabbit {
 			RABBIT_THANKS_DURATION,
 		),
 		false,
+		RABBIT_STARTING_HEALTH,
+		0,
 	}
 }
 
@@ -69,6 +80,12 @@ func (rabbit *Rabbit) Update(t int32, player *Player, game *Game) {
 	rabbit.X = rabbit.MapX - (player.X) + PLAYER_OFFSET_X
 	rabbit.Y = rabbit.MapY - (player.Y) + PLAYER_OFFSET_Y
 
+	// if health is 0 we don't need to update anything other than position
+	// cus the rabbit is dead
+	if rabbit.IsDead() {
+		return
+	}
+
 	if rabbit.ShowHeart {
 		rabbit.Heart.StartShowing(t)
 		rabbit.ShowHeart = false
@@ -78,6 +95,21 @@ func (rabbit *Rabbit) Update(t int32, player *Player, game *Game) {
 	rabbit.Heart.Update(t)
 	if t%45 == 0 {
 		rabbit.switchIdleFrame()
+	}
+
+	// deal with slow death
+	rabbit.DieALittle(t)
+	// if we died this frame, load dead assets
+	if rabbit.IsDead() {
+		rabbit.Sprite.Id = RABBIT_DEAD_FRAME
+	}
+}
+
+func (rabbit *Rabbit) DieALittle(t int32) {
+	// every second decrease health and bump DeathClock
+	if TimeSince(t, rabbit.DeathClock) >= RABBIT_STARVING_RATE {
+		rabbit.DeathClock = t
+		rabbit.Health = rabbit.Health - 1
 	}
 }
 
@@ -90,5 +122,19 @@ func (rabbit *Rabbit) switchIdleFrame() {
 	} else {
 		rabbit.Frame = 0
 	}
-	rabbit.Sprite.Id = RABBIT_MAIN_FRAME + (4 * rabbit.Frame)
+	if rabbit.Health <= RABBIT_HURT_HEALTH {
+		rabbit.Sprite.Id = RABBIT_HURT_FRAME + (4 * rabbit.Frame)
+	} else {
+		rabbit.Sprite.Id = RABBIT_MAIN_FRAME + (4 * rabbit.Frame)
+	}
+}
+
+func (rabbit *Rabbit) IsDead() bool {
+	return rabbit.Health == 0
+}
+
+func (rabbit *Rabbit) Heal() {
+	rabbit.HappySfx.Play()
+	rabbit.ShowHeart = true
+	rabbit.Health = rabbit.Health + RABBIT_HEALING_AMOUNT
 }

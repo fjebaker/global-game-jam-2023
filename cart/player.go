@@ -128,7 +128,14 @@ func (player *Player) HandleInteraction(t int32) {
 	player.Move_fx.Stop()
 }
 
-func (player *Player) Update(t int32, world *World, game *Game, desired *RetrievableItem) {
+func (player *Player) Update(t int32, world *World, game *Game, desired *RetrievableItem, rabbit *Rabbit) {
+	if rabbit.IsDead() && rabbit.PointInZone(player.X, player.Y) {
+		game.ChangeState(GAME_STATE_OVER)
+		player.SetDead()
+		// no other actions needed
+		return
+	}
+
 	player.updateEatingState(t)
 	if player.Eating {
 		return
@@ -150,7 +157,9 @@ func (player *Player) Update(t int32, world *World, game *Game, desired *Retriev
 
 	if world.IsDeadly(tileIndex) {
 		game.ChangeState(GAME_STATE_OVER)
-		player.Dead = true
+		player.SetDead()
+		// no other actions needed
+		return
 	}
 
 	if player.Digging {
@@ -202,12 +211,8 @@ func (player *Player) animate(t int32) {
 }
 
 func (player *Player) incrementFrame() {
-	if !player.Dead {
-		player.Frame = (player.Frame + 1) % 5
-		player.Sprite.Id = PLAYER_MAIN_FRAME + player.Frame
-	} else {
-		player.Sprite.Id = PLAYER_DEAD_FRAME
-	}
+	player.Frame = (player.Frame + 1) % 5
+	player.Sprite.Id = PLAYER_MAIN_FRAME + player.Frame
 }
 
 func (player *Player) move(world *World) {
@@ -234,4 +239,10 @@ func (player *Player) move(world *World) {
 	case tic80.ROTATE_LEFT:
 		player.X -= 1
 	}
+}
+
+func (player *Player) SetDead() {
+	player.Dead = true
+	// change the tileset explicitly
+	player.Sprite.Id = PLAYER_DEAD_FRAME
 }
