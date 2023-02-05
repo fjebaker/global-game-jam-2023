@@ -17,9 +17,10 @@ const (
 )
 
 const (
-	ITEM_FRAME_SIZE = 1
-	ITEM_SCREEN_X   = 4
-	ITEM_SCREEN_Y   = 4
+	ITEM_FRAME_SIZE     = 1
+	ITEM_SCREEN_X       = 4
+	ITEM_SCREEN_Y       = 4
+	ITEM_HEALING_AMOUNT = 20
 )
 
 const DESIREABLE_ITEM_COUNT = 9
@@ -60,6 +61,7 @@ func (item *RetrievableItem) Update(t int32, player *Player, rabbit *Rabbit) {
 		item.Sprite.Id = int32(newDesiredItem())
 		rabbit.HappySfx.Play()
 		rabbit.ShowHeart = true
+		rabbit.Health = rabbit.Health + ITEM_HEALING_AMOUNT
 	}
 
 	// propagate updates

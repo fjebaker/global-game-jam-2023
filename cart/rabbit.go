@@ -20,8 +20,9 @@ const (
 	RABBIT_SOUND_CHANNEL  = 2
 	RABBIT_SOUND_DURATION = (3 * 60)
 
-	RABBIT_STARTING_HEALTH = 120  // in seconds
-	RABBIT_STARVING_RATE   = 60 // in frames
+	RABBIT_STARTING_HEALTH = 120 // in seconds
+	RABBIT_HURT_HEALTH     = 60  // at which point new frames used
+	RABBIT_STARVING_RATE   = 60  // in frames
 )
 
 type Rabbit struct {
@@ -120,7 +121,11 @@ func (rabbit *Rabbit) switchIdleFrame() {
 	} else {
 		rabbit.Frame = 0
 	}
-	rabbit.Sprite.Id = RABBIT_MAIN_FRAME + (4 * rabbit.Frame)
+	if rabbit.Health <= RABBIT_HURT_HEALTH {
+		rabbit.Sprite.Id = RABBIT_HURT_FRAME + (4 * rabbit.Frame)
+	} else {
+		rabbit.Sprite.Id = RABBIT_MAIN_FRAME + (4 * rabbit.Frame)
+	}
 }
 
 func (rabbit *Rabbit) IsDead() bool {
