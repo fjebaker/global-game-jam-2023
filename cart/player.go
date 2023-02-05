@@ -27,18 +27,17 @@ type Player struct {
 	Digging      bool
 	Moving       bool
 	HasItem      bool
-	ItemSprite   *tic80.Sprite
 	Eating       bool
 	EatStartTime int32
 }
 
-func NewPlayer(worldX, worldY int32, desired_item_sprite *tic80.Sprite) Player {
+func NewPlayer(worldX, worldY int32) Player {
 	sprite := tic80.SquareSprite(258, 1)
 	sprite.Rotate = tic80.ROTATE_RIGHT
 	move_fx := tic80.NewSoundEffect(61, 3, 8)
 	eat_fx := tic80.NewSoundEffect(63, 3, 30)
 
-	return Player{worldX, worldY, 0, sprite, move_fx, eat_fx, 4, false, false, false, false, desired_item_sprite, false, 0}
+	return Player{worldX, worldY, 0, sprite, move_fx, eat_fx, 4, false, false, false, false, false, 0}
 }
 
 const (
@@ -66,8 +65,6 @@ func (player *Player) Draw(t int32) {
 		player.incrementFrame()
 	}
 	player.Sprite.Draw(PLAYER_OFFSET_X, PLAYER_OFFSET_Y)
-
-	player.DrawTooltips()
 }
 
 func (player *Player) GetInfront() (int32, int32) {
@@ -126,12 +123,11 @@ func (player *Player) HandleInteraction(t int32) {
 	player.Move_fx.Stop()
 }
 
-func (player *Player) Update(t int32, world *World, game *Game) {
+func (player *Player) Update(t int32, world *World, game *Game, desired *RetrievableItem) {
 	player.updateEatingState(t)
 	if player.Eating {
 		return
 	}
-
 	if player.Moving {
 		// check sfx update
 		if player.Move_fx.IsPlaying(t, OVERFLOW_MODULO_TIME) == false {
@@ -161,7 +157,7 @@ func (player *Player) Update(t int32, world *World, game *Game) {
 			world.CollectItem(x, y)
 		}
 		// check if the item was what we wanted
-		if tileIndex == int32(game.DesiredItem) {
+		if tileIndex == desired.Id() {
 			player.HasItem = true
 		}
 	}
@@ -214,12 +210,5 @@ func (player *Player) move(world *World) {
 		player.X += 1
 	case tic80.ROTATE_LEFT:
 		player.X -= 1
-	}
-}
-
-func (player *Player) DrawTooltips() {
-	tic80.RectangleWithBorder(2, 2, 12, 12, 0, 9)
-	if player.HasItem {
-		player.ItemSprite.Draw(4, 4)
 	}
 }
