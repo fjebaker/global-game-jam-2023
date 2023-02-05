@@ -24,11 +24,12 @@ const (
 	// DEBUG FRAME
 	// PLAYER_MAIN_FRAME = 336
 
-	PLAYER_MOVE_SFX      = 61
-	PLAYER_MOVE_DURATION = 8
-	PLAYER_EAT_SFX       = 63
-	PLAYER_EAT_DURATION  = 30
-	PLAYER_SOUND_CHANNEL = 3
+	PLAYER_MOVE_SFX        = 61
+	PLAYER_MOVE_DURATION   = 8
+	PLAYER_EAT_SFX         = 63
+	PLAYER_EAT_DURATION    = 30
+	PLAYER_SOUND_CHANNEL   = 3
+	EATING_PARTICLE_COLOUR = 4
 )
 
 type Player struct {
@@ -73,6 +74,9 @@ func NewPlayer(worldX, worldY int32) Player {
 
 func (player *Player) Draw() {
 	player.Sprite.Draw(PLAYER_OFFSET_X, PLAYER_OFFSET_Y)
+	if player.Eating {
+		player.drawEatingParticles()
+	}
 }
 
 func (player *Player) GetInfront() (int32, int32) {
@@ -217,6 +221,19 @@ func (player *Player) animate(t int32) {
 	}
 	if t%mod == 0 {
 		player.incrementFrame()
+	}
+}
+
+func (player *Player) drawEatingParticles() {
+	x, y := player.GetInfront()
+	base_x := x - player.X + PLAYER_OFFSET_X - PLAYER_DELTA_X
+	base_y := y - player.Y + PLAYER_OFFSET_Y - PLAYER_DELTA_Y
+	for i := 0; i < 5; i = i + 1 {
+		tic80.PaintPixel(
+			base_x+int32(RandInt(0, 8)),
+			base_y+int32(RandInt(0, 8)),
+			EATING_PARTICLE_COLOUR,
+		)
 	}
 }
 
