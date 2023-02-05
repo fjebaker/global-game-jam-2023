@@ -158,6 +158,8 @@ func (player *Player) Update(t int32, world *World, game *Game, desired *Retriev
 	if world.IsDeadly(tileIndex) {
 		game.ChangeState(GAME_STATE_OVER)
 		player.SetDead()
+		// no other actions needed
+		return
 	}
 
 	if player.Digging {
