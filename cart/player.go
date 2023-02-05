@@ -167,6 +167,9 @@ func (player *Player) Update(t int32, world *World, game *Game, desired *Retriev
 		case world.IsDirt(tileIndex):
 			world.DigTile(x, y)
 			player.startEating(t)
+		case world.IsTree(tileIndex):
+			world.DigTree(x, y)
+			player.startEating(t)
 		case world.IsItem(tileIndex):
 			world.CollectItem(x, y)
 		}
@@ -225,7 +228,7 @@ func (player *Player) move(world *World) {
 	// What does the tile in that position contain?
 	tileIndex := world.GetMapTile(x, y)
 
-	if world.IsIndestructible(tileIndex) || world.IsDirt(tileIndex) {
+	if world.IsIndestructible(tileIndex) || world.IsDirt(tileIndex) || world.IsTree(tileIndex) {
 		return
 	}
 

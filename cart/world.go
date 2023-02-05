@@ -13,11 +13,15 @@ const (
 	WORLD_BOTTOM_Y = tic80.MAP_MAX_Y
 
 	WORLD_BACKGROUND_X = tic80.MAP_MAX_X - tic80.SCREEN_TILE_WIDTH
+
+	WORLD_TREE_FULL_HEALTH = 4
 )
 
 type World struct {
 	X, Y             int32
 	OffsetX, OffsetY int32
+
+	TreeLife int8
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -26,7 +30,11 @@ type World struct {
 func NewWorld(player *Player) World {
 	tileX, tileY, offsetX, offsetY := worldToTile(player.X, player.Y)
 
-	return World{tileX, tileY, offsetX, offsetY}
+	return World{
+		tileX, tileY,
+		offsetX, offsetY,
+		WORLD_TREE_FULL_HEALTH,
+	}
 }
 
 func (world *World) CollectItem(x, y int32) {
@@ -48,6 +56,19 @@ func (world *World) CollectItem(x, y int32) {
 func (world *World) DigTile(x, y int32) {
 	tileX, tileY, _, _ := worldToTile(x, y)
 	tic80.MSet(tileX, tileY, tic80.MAP_EMPTY_TILE)
+}
+
+func (world *World) DigTree(x, y int32) {
+	tileX, tileY, _, _ := worldToTile(x, y)
+	tic80.MSet(tileX, tileY, tic80.MAP_EMPTY_TILE)
+
+	if world.TreeLife > 0 {
+		world.TreeLife -= 1
+		start, stop, offset := treeLifeDetails(world.TreeLife)
+		if offset > 0 {
+			tic80.MSetRange(start, stop, offset)
+		}
+	}
 }
 
 func (world *World) Draw() {
@@ -78,6 +99,10 @@ func (world *World) IsItem(index int32) bool {
 	return tic80.FGet(index, tic80.MAP_TILE_ITEM_FLAG)
 }
 
+func (world *World) IsTree(index int32) bool {
+	return tic80.FGet(index, tic80.MAP_TILE_TREE_FLAG)
+}
+
 func (world *World) IsInBounds(x, y int32) bool {
 	tileX, tileY, _, _ := worldToTile(x, y)
 
@@ -104,6 +129,34 @@ func (world *World) Update(t int32, player *Player, game *Game) {
 
 ///////////////////////////////////////////////////////////////////////////////
 // Utils
+
+func treeLifeDetails(life int8) (start byte, stop byte, offset byte) {
+	switch life {
+	case 3:
+		start = 16
+		stop = 31
+		offset = 128
+		return
+	case 2:
+		start = 144
+		stop = 159
+		offset = 16
+		return
+	case 1:
+		start = 160
+		stop = 175
+		offset = 16
+		return
+	case 0:
+		start = 176
+		stop = 191
+		offset = 0
+		return
+	// just in case
+	default:
+		return 0, 0, 0
+	}
+}
 
 func worldToTile(x, y int32) (int32, int32, int32, int32) {
 	offsetX := 8 - (x % 8)
