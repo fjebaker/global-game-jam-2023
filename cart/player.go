@@ -13,7 +13,8 @@ const (
 	PLAYER_START_POSITION_X = 97 * 8
 	PLAYER_START_POSITION_Y = 14 * 8
 
-	DIRT_EAT_TIME = 10
+	DIRT_EAT_TIME_DELTA = 10
+	ROOT_EAT_TIME_DELTA = 25
 )
 const (
 	PLAYER_MAIN_FRAME = 256
@@ -43,6 +44,7 @@ type Player struct {
 	Moving       bool
 	HasItem      bool
 	Eating       bool
+	EatTimeDelta int32
 }
 
 func NewPlayer(worldX, worldY int32) Player {
@@ -62,6 +64,7 @@ func NewPlayer(worldX, worldY int32) Player {
 		move_fx, eat_fx,
 		0,
 		false, false, false, false, false,
+		0,
 	}
 }
 
@@ -136,11 +139,23 @@ func (player *Player) Update(t int32, world *World, game *Game, desired *Retriev
 		return
 	}
 
-	player.updateEatingState(t)
-	if player.Eating {
-		return
+	// check what is infront
+	x, y := player.GetInfront()
+	tileIndex := world.GetMapTile(x, y)
+
+	// stop eating if not digging
+	if !player.Digging {
+		player.Eating = false
 	}
-	if player.Moving {
+
+	finished_eating := player.Eating && TimeSince(t, player.EatStartTime) >= player.EatTimeDelta
+	if finished_eating {
+		player.Eating = false
+		world.Dig(x, y, game)
+	}
+
+	// disallow movement when eating
+	if !player.Eating && player.Moving {
 		// check sfx update
 		if player.Move_fx.IsPlaying(t, OVERFLOW_MODULO_TIME) == false {
 			player.Move_fx.PlayRecordTime(t)
@@ -151,10 +166,6 @@ func (player *Player) Update(t int32, world *World, game *Game, desired *Retriev
 		}
 	}
 
-	// check what is infront
-	x, y := player.GetInfront()
-	tileIndex := world.GetMapTile(x, y)
-
 	if world.IsDeadly(tileIndex) {
 		game.ChangeState(GAME_STATE_OVER)
 		player.SetDead()
@@ -162,14 +173,12 @@ func (player *Player) Update(t int32, world *World, game *Game, desired *Retriev
 		return
 	}
 
-	if player.Digging {
+	if !player.Eating && player.Digging {
 		switch {
 		case world.IsDirt(tileIndex):
-			world.DigTile(x, y)
-			player.startEating(t)
+			player.startEating(t, DIRT_EAT_TIME_DELTA)
 		case world.IsTree(tileIndex):
-			world.DigTree(x, y, game)
-			player.startEating(t)
+			player.startEating(t, ROOT_EAT_TIME_DELTA)
 		case world.IsItem(tileIndex):
 			world.CollectItem(x, y)
 		}
@@ -185,27 +194,25 @@ func (player *Player) Update(t int32, world *World, game *Game, desired *Retriev
 ///////////////////////////////////////////////////////////////////////////////
 // Utils
 
-func (player *Player) startEating(t int32) {
+func (player *Player) startEating(t int32, eatTimeDelta int32) {
 	player.Eat_fx.Play()
 	player.Eating = true
 	player.EatStartTime = t
-}
-
-func (player *Player) updateEatingState(t int32) {
-	if player.Eating && TimeSince(t, player.EatStartTime) >= DIRT_EAT_TIME {
-		player.Eating = false
-	}
+	player.EatTimeDelta = eatTimeDelta
 }
 
 func (player *Player) animate(t int32) {
 	var mod int32
-	if player.Moving {
+	switch {
+	case player.Eating:
+		mod = 1
+	case player.Moving:
 		if player.Speed == 1 {
 			mod = 2
 		} else {
 			mod = 5
 		}
-	} else {
+	default:
 		mod = 12
 	}
 	if t%mod == 0 {
