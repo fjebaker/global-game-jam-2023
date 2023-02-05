@@ -24,15 +24,19 @@ func DebugUpdate(world *World, player *Player) {
 	offset_location := "Offset: x:" + strconv.Itoa(int(xo)) + " y:" + strconv.Itoa(int(yo))
 	tile := world.GetMapTile(player.X, player.Y)
 	tile_type := "Tile Type: " + strconv.Itoa(int(tile))
+
 	x, y := player.GetInfront()
+	xt, yt, _, _ := worldToTile(x, y)
 	in_tile := world.GetMapTile(x, y)
+	in_tile_location := "Infront Tile Coord: x:" + strconv.Itoa(int(xt)) + " y:" + strconv.Itoa(int(yt))
 	in_tile_type := "Infront Type: " + strconv.Itoa(int(in_tile))
 
 	tic80.Print(&location, 1, 1, 15, true, 1, false)
 	tic80.Print(&world_location, 1, 8, 15, true, 1, false)
 	tic80.Print(&offset_location, 1, 14, 15, true, 1, false)
 	tic80.Print(&tile_type, 1, 21, 15, true, 1, false)
-	tic80.Print(&in_tile_type, 1, 28, 15, true, 1, false)
+	tic80.Print(&in_tile_location, 1, 28, 15, true, 1, false)
+	tic80.Print(&in_tile_type, 1, 35, 15, true, 1, false)
 
 	has_message := "Has Item:"
 	if player.HasItem {
@@ -40,7 +44,7 @@ func DebugUpdate(world *World, player *Player) {
 	} else {
 		has_message = has_message + "False"
 	}
-	tic80.Print(&has_message, 1, 35, 15, true, 1, false)
+	tic80.Print(&has_message, 1, 42, 15, true, 1, false)
 
 	tic80.PaintPixel(x-player.X+PLAYER_OFFSET_X, y-player.Y+PLAYER_OFFSET_Y, 11)
 }
