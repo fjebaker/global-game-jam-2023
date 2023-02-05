@@ -20,7 +20,7 @@ const (
 	RABBIT_SOUND_CHANNEL  = 2
 	RABBIT_SOUND_DURATION = (3 * 60)
 
-	RABBIT_STARTING_HEALTH = 3  // in seconds
+	RABBIT_STARTING_HEALTH = 120  // in seconds
 	RABBIT_STARVING_RATE   = 60 // in frames
 )
 
