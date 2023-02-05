@@ -5,8 +5,8 @@ type SoundEffect struct {
 	T_start                                            int32
 }
 
-func NewSoundEffect(id, channel int32) SoundEffect {
-	return SoundEffect{id, 0, 5, 30, channel, 10, 0, 0}
+func NewSoundEffect(id, channel int32, duration int32) SoundEffect {
+	return SoundEffect{id, 0, 5, duration, channel, 10, 0, 0}
 }
 
 func (sfx *SoundEffect) PlayRecordTime(t int32) {
