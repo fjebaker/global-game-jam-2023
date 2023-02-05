@@ -6,8 +6,9 @@ type GameState int32
 
 const (
 	GAME_STATE_PLAYING GameState = iota
-	GAME_STATE_TREE_DEAD
 	GAME_STATE_OVER
+	GAME_STATE_WIN
+	GAME_STATE_FINALLY_OVER
 )
 
 const (
@@ -53,8 +54,5 @@ func (game *Game) KillTreeABit() int8 {
 		game.TreeLife -= 1
 	}
 
-	if game.TreeLife == 0 {
-		game.ChangeState(GAME_STATE_TREE_DEAD)
-	}
 	return game.TreeLife
 }

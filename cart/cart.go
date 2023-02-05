@@ -38,16 +38,20 @@ func Loop() {
 	if _game.State != GAME_STATE_OVER {
 		_player.HandleInteraction(_t)
 
-		_desired_item.Update(_t, &_player, &_rabbit)
-		_player.Update(_t, &_world, &_game, &_desired_item, &_rabbit)
-		_rabbit.Update(_t, &_player, &_game)
-		_world.Update(_t, &_player, &_game)
+		_desired_item.Update(_t, &_game, &_player, &_rabbit)
+		if _game.State != GAME_STATE_WIN {
+			_player.Update(_t, &_game, &_world, &_desired_item, &_rabbit)
+		}
+		_rabbit.Update(_t, &_game, &_player)
+		_world.Update(_t, &_game, &_player)
 	}
 
 	_world.Draw()
 	_rabbit.Draw()
-	_player.Draw()
-	_desired_item.Draw()
+	if _game.State != GAME_STATE_WIN {
+		_player.Draw()
+		_desired_item.Draw()
+	}
 
 	_t = _t + 1
 	// avoid overflows
