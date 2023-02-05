@@ -10,23 +10,23 @@ const (
 	PLAYER_OFFSET_X int32 = 120 - PLAYER_DELTA_X
 	PLAYER_OFFSET_Y       = 67 - PLAYER_DELTA_Y
 
-	PLAYER_START_POSITION_X = 97*8
+	PLAYER_START_POSITION_X = 97 * 8
 	PLAYER_START_POSITION_Y = 14 * 8
 
 	DIRT_EAT_TIME = 10
 )
 
 type Player struct {
-	X, Y    int32
-	Frame   int32
-	Sprite  tic80.Sprite
-	Move_fx tic80.SoundEffect
-  Eat_fx  tic80.SoundEffect
-	Speed   int32
-	Dead    bool
-	Digging bool
-	Moving  bool
-	HasItem bool
+	X, Y         int32
+	Frame        int32
+	Sprite       tic80.Sprite
+	Move_fx      tic80.SoundEffect
+	Eat_fx       tic80.SoundEffect
+	Speed        int32
+	Dead         bool
+	Digging      bool
+	Moving       bool
+	HasItem      bool
 	Eating       bool
 	EatStartTime int32
 }
