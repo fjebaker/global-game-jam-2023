@@ -23,6 +23,7 @@ const (
 	RABBIT_STARTING_HEALTH = 120 // in seconds
 	RABBIT_HURT_HEALTH     = 60  // at which point new frames used
 	RABBIT_STARVING_RATE   = 60  // in frames
+	RABBIT_HEALING_AMOUNT = 20
 )
 
 type Rabbit struct {
@@ -130,4 +131,10 @@ func (rabbit *Rabbit) switchIdleFrame() {
 
 func (rabbit *Rabbit) IsDead() bool {
 	return rabbit.Health == 0
+}
+
+func (rabbit *Rabbit) Heal() {
+	rabbit.HappySfx.Play()
+	rabbit.ShowHeart = true
+	rabbit.Health = rabbit.Health + RABBIT_HEALING_AMOUNT
 }
