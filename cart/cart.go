@@ -39,7 +39,7 @@ func Loop() {
 		_player.HandleInteraction(_t)
 
 		_desired_item.Update(_t, &_player, &_rabbit)
-		_player.Update(_t, &_world, &_game, &_desired_item)
+		_player.Update(_t, &_world, &_game, &_desired_item, &_rabbit)
 		_rabbit.Update(_t, &_player, &_game)
 		_world.Update(_t, &_player, &_game)
 	}
