@@ -63,6 +63,16 @@ func (world *World) DigTree(x, y int32, game *Game) {
 	}
 }
 
+func (world *World) Dig(x, y int32) {
+	tileIndex := world.GetMapTile(x, y)
+	switch {
+	case world.IsDirt(tileIndex):
+		world.DigTile(x, y)
+	case world.IsTree(tileIndex):
+		world.DigTree(x, y)
+	}
+}
+
 func (world *World) Draw() {
 	// The background is the entire right screenwidth of the map tiles
 	tic80.Map(WORLD_BACKGROUND_X, world.Y, 0, world.OffsetY)
