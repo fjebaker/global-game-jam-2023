@@ -12,26 +12,33 @@ const (
 
 	PLAYER_START_POSITION_X = 97 * 8
 	PLAYER_START_POSITION_Y = 14 * 8
+
+	DIRT_EAT_TIME = 10
 )
 
 type Player struct {
-	X, Y       int32
-	Frame      int32
-	Sprite     tic80.Sprite
-	Move_fx    tic80.SoundEffect
-	Speed      int32
-	Dead       bool
-	Digging    bool
-	Moving     bool
-	HasItem    bool
-	ItemSprite *tic80.Sprite
+	X, Y         int32
+	Frame        int32
+	Sprite       tic80.Sprite
+	Move_fx      tic80.SoundEffect
+	Eat_fx       tic80.SoundEffect
+	Speed        int32
+	Dead         bool
+	Digging      bool
+	Moving       bool
+	HasItem      bool
+	ItemSprite   *tic80.Sprite
+	Eating       bool
+	EatStartTime int32
 }
 
 func NewPlayer(worldX, worldY int32, desired_item_sprite *tic80.Sprite) Player {
 	sprite := tic80.SquareSprite(258, 1)
 	sprite.Rotate = tic80.ROTATE_RIGHT
-	sfx := tic80.NewSoundEffect(61, 3)
-	return Player{worldX, worldY, 0, sprite, sfx, 4, false, false, false, false, desired_item_sprite}
+	move_fx := tic80.NewSoundEffect(61, 3, 8)
+	eat_fx := tic80.NewSoundEffect(63, 3, 30)
+
+	return Player{worldX, worldY, 0, sprite, move_fx, eat_fx, 4, false, false, false, false, desired_item_sprite, false, 0}
 }
 
 const (
@@ -120,6 +127,11 @@ func (player *Player) HandleInteraction(t int32) {
 }
 
 func (player *Player) Update(t int32, world *World, game *Game) {
+	player.updateEatingState(t)
+	if player.Eating {
+		return
+	}
+
 	if player.Moving {
 		// check sfx update
 		if player.Move_fx.IsPlaying(t, OVERFLOW_MODULO_TIME) == false {
@@ -144,6 +156,7 @@ func (player *Player) Update(t int32, world *World, game *Game) {
 		switch {
 		case world.IsDirt(tileIndex):
 			world.DigTile(x, y)
+			player.startEating(t)
 		case world.IsItem(tileIndex):
 			world.CollectItem(x, y)
 		}
@@ -156,6 +169,18 @@ func (player *Player) Update(t int32, world *World, game *Game) {
 
 ///////////////////////////////////////////////////////////////////////////////
 // Utils
+
+func (player *Player) startEating(t int32) {
+	player.Eat_fx.Play()
+	player.Eating = true
+	player.EatStartTime = t
+}
+
+func (player *Player) updateEatingState(t int32) {
+	if player.Eating && TimeSince(t, player.EatStartTime) >= DIRT_EAT_TIME {
+		player.Eating = false
+	}
+}
 
 func (player *Player) incrementFrame() {
 	if !player.Dead {

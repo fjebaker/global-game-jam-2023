@@ -36,8 +36,7 @@ const (
 
 func NewRabbit(x, y, mapx, mapy int32, item_sprite *tic80.Sprite) Rabbit {
 	sprite := tic80.SquareSprite(rabbit_main_frame, 4)
-	sfx := tic80.NewSoundEffect(60, 2)
-	sfx.Duration = 180
+	sfx := tic80.NewSoundEffect(60, 2, 180)
 	heart_sprite := tic80.SquareSprite(352, 2)
 	return Rabbit{
 		x, y,
