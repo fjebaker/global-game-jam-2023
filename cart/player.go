@@ -139,7 +139,7 @@ func (player *Player) Update(t int32, world *World, game *Game, desired *Retriev
 		return
 	}
 
-	player.updateEatingState(t)
+	player.updateEatingState(t, world)
 	if player.Eating {
 		return
 	}
@@ -168,10 +168,8 @@ func (player *Player) Update(t int32, world *World, game *Game, desired *Retriev
 	if player.Digging {
 		switch {
 		case world.IsDirt(tileIndex):
-			world.DigTile(x, y)
 			player.startEating(t, DIRT_EAT_TIME_DELTA)
 		case world.IsTree(tileIndex):
-			world.DigTree(x, y)
 			player.startEating(t, ROOT_EAT_TIME_DELTA)
 		case world.IsItem(tileIndex):
 			world.CollectItem(x, y)
@@ -195,8 +193,16 @@ func (player *Player) startEating(t int32, eatTimeDelta int32) {
 	player.EatTimeDelta = eatTimeDelta
 }
 
-func (player *Player) updateEatingState(t int32) {
+func (player *Player) updateEatingState(t int32, world *World) {
 	if player.Eating && TimeSince(t, player.EatStartTime) >= player.EatTimeDelta {
+		x, y := player.GetInfront()
+		tileIndex := world.GetMapTile(x, y)
+		switch {
+		case world.IsDirt(tileIndex):
+			world.DigTile(x, y)
+		case world.IsTree(tileIndex):
+			world.DigTree(x, y)
+		}
 		player.Eating = false
 	}
 }
