@@ -132,6 +132,8 @@ func (player *Player) Update(t int32, world *World, game *Game, desired *Retriev
 	if rabbit.IsDead() && rabbit.PointInZone(player.X, player.Y) {
 		game.ChangeState(GAME_STATE_OVER)
 		player.SetDead()
+		// no other actions needed
+		return
 	}
 
 	player.updateEatingState(t)
