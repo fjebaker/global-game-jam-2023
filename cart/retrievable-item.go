@@ -17,9 +17,9 @@ const (
 )
 
 const (
-	ITEM_FRAME_SIZE     = 1
-	ITEM_SCREEN_X       = 4
-	ITEM_SCREEN_Y       = 4
+	ITEM_FRAME_SIZE = 1
+	ITEM_SCREEN_X   = 4
+	ITEM_SCREEN_Y   = 4
 )
 
 const DESIREABLE_ITEM_COUNT = 9
