@@ -10,22 +10,21 @@ const (
 )
 
 var (
-	_mouse               tic80.MouseData
-	_t                   int32
-	_player              Player
-	_rabbit              Rabbit
-	_world               World
-	_game                Game
-	_desired_item_sprite tic80.Sprite
+	_mouse        tic80.MouseData
+	_t            int32
+	_player       Player
+	_rabbit       Rabbit
+	_world        World
+	_game         Game
+	_desired_item RetrievableItem
 )
 
 func Start() {
 	_t = 0
 	_game = NewGame()
-	_desired_item_sprite = tic80.SquareSprite(int32(_game.DesiredItem), 1)
-	_player = NewPlayer(PLAYER_START_POSITION_X, PLAYER_START_POSITION_Y, &_desired_item_sprite)
-	// rabbit holds a pointer to the desired item so that it may modify it
-	_rabbit = NewRabbit(100, 50, RABBIT_START_POSITION_X, RABBIT_START_POSITION_Y, &_desired_item_sprite)
+	_desired_item = NewRetrievableItem()
+	_player = NewPlayer(PLAYER_START_POSITION_X, PLAYER_START_POSITION_Y)
+	_rabbit = NewRabbit(100, 50, RABBIT_START_POSITION_X, RABBIT_START_POSITION_Y)
 	_world = NewWorld(&_player)
 	tic80.Music(0, -1, -1, true, false, -1, -1)
 }
@@ -37,7 +36,9 @@ func Loop() {
 
 	if _game.State != GAME_STATE_OVER {
 		_player.HandleInteraction(_t)
-		_player.Update(_t, &_world, &_game)
+
+		_desired_item.Update(_t, &_player, &_rabbit)
+		_player.Update(_t, &_world, &_game, &_desired_item)
 		_rabbit.Update(_t, &_player, &_game)
 		_world.Update(_t, &_player, &_game)
 	}
@@ -45,6 +46,7 @@ func Loop() {
 	_world.Draw(_t)
 	_rabbit.Draw(_t)
 	_player.Draw(_t)
+	_desired_item.Draw(_t)
 
 	_t = _t + 1
 	// avoid overflows
