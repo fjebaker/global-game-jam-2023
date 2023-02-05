@@ -13,7 +13,8 @@ const (
 	PLAYER_START_POSITION_X = 97 * 8
 	PLAYER_START_POSITION_Y = 14 * 8
 
-	DIRT_EAT_TIME = 10
+	DIRT_EAT_TIME_DELTA = 10
+	ROOT_EAT_TIME_DELTA = 25
 )
 const (
 	PLAYER_MAIN_FRAME = 256
@@ -43,6 +44,7 @@ type Player struct {
 	Moving       bool
 	HasItem      bool
 	Eating       bool
+	EatTimeDelta int32
 }
 
 func NewPlayer(worldX, worldY int32) Player {
@@ -62,6 +64,7 @@ func NewPlayer(worldX, worldY int32) Player {
 		move_fx, eat_fx,
 		0,
 		false, false, false, false, false,
+		0,
 	}
 }
 
@@ -166,10 +169,10 @@ func (player *Player) Update(t int32, world *World, game *Game, desired *Retriev
 		switch {
 		case world.IsDirt(tileIndex):
 			world.DigTile(x, y)
-			player.startEating(t)
+			player.startEating(t, DIRT_EAT_TIME_DELTA)
 		case world.IsTree(tileIndex):
 			world.DigTree(x, y)
-			player.startEating(t)
+			player.startEating(t, ROOT_EAT_TIME_DELTA)
 		case world.IsItem(tileIndex):
 			world.CollectItem(x, y)
 		}
@@ -185,14 +188,15 @@ func (player *Player) Update(t int32, world *World, game *Game, desired *Retriev
 ///////////////////////////////////////////////////////////////////////////////
 // Utils
 
-func (player *Player) startEating(t int32) {
+func (player *Player) startEating(t int32, eatTimeDelta int32) {
 	player.Eat_fx.Play()
 	player.Eating = true
 	player.EatStartTime = t
+	player.EatTimeDelta = eatTimeDelta
 }
 
 func (player *Player) updateEatingState(t int32) {
-	if player.Eating && TimeSince(t, player.EatStartTime) >= DIRT_EAT_TIME {
+	if player.Eating && TimeSince(t, player.EatStartTime) >= player.EatTimeDelta {
 		player.Eating = false
 	}
 }
