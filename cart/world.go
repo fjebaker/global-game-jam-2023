@@ -13,6 +13,8 @@ const (
 	WORLD_BOTTOM_Y = tic80.MAP_MAX_Y
 
 	WORLD_BACKGROUND_X = tic80.MAP_MAX_X - tic80.SCREEN_TILE_WIDTH
+
+	TUNNEL_START_FRAME = 192
 )
 
 type World struct {
@@ -47,12 +49,12 @@ func (world *World) CollectItem(x, y int32) {
 
 func (world *World) DigTile(x, y int32) {
 	tileX, tileY, _, _ := worldToTile(x, y)
-	tic80.MSet(tileX, tileY, tic80.MAP_EMPTY_TILE)
+	world.tunnelTile(tileX, tileY)
 }
 
 func (world *World) DigTree(x, y int32, game *Game) {
 	tileX, tileY, _, _ := worldToTile(x, y)
-	tic80.MSet(tileX, tileY, tic80.MAP_EMPTY_TILE)
+	world.tunnelTile(tileX, tileY)
 
 	life := game.KillTreeABit()
 	if life >= 0 {
@@ -131,6 +133,31 @@ func (world *World) Update(t int32, player *Player, game *Game) {
 
 ///////////////////////////////////////////////////////////////////////////////
 // Utils
+
+func (world *World) tunnelTile(tileX, tileY int32) {
+	leftTile, upTile, rightTile, downTile := tic80.MGet(tileX-1, tileY), tic80.MGet(tileX, tileY-1), tic80.MGet(tileX+1, tileY), tic80.MGet(tileX, tileY+1)
+	offset := boolToInt(!world.IsDirt(leftTile)) + 2*boolToInt(!world.IsDirt(upTile)) + 4*boolToInt(!world.IsDirt(rightTile)) + 8*boolToInt(!world.IsDirt(downTile)) - 1
+	tic80.MSet(tileX, tileY, TUNNEL_START_FRAME+offset)
+	if rightTile >= TUNNEL_START_FRAME && rightTile < TUNNEL_START_FRAME+15 {
+		tic80.MSet(tileX+1, tileY, rightTile+1)
+	}
+	if downTile >= TUNNEL_START_FRAME && downTile < TUNNEL_START_FRAME+14 {
+		tic80.MSet(tileX, tileY+1, downTile+2)
+	}
+	if leftTile >= TUNNEL_START_FRAME && leftTile < TUNNEL_START_FRAME+12 {
+		tic80.MSet(tileX-1, tileY, leftTile+4)
+	}
+	if upTile >= TUNNEL_START_FRAME && upTile < TUNNEL_START_FRAME+8 {
+		tic80.MSet(tileX, tileY-1, upTile+8)
+	}
+}
+
+func boolToInt(condition bool) int32 {
+	if condition {
+		return 1
+	}
+	return 0
+}
 
 func treeDecayDetails(life int8) (start byte, stop byte, offset byte) {
 	switch life {
