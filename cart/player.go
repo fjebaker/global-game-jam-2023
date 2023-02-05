@@ -127,7 +127,8 @@ func (player *Player) HandleInteraction(t int32) {
 }
 
 func (player *Player) Update(t int32, world *World, game *Game) {
-	if player.isEating(t) {
+	player.updateEatingState(t)
+	if player.Eating {
 		return
 	}
 
@@ -175,13 +176,10 @@ func (player *Player) startEating(t int32) {
 	player.EatStartTime = t
 }
 
-func (player *Player) isEating(t int32) bool {
-	if player.Eating {
-		if TimeSince(t, player.EatStartTime) >= DIRT_EAT_TIME {
-			player.Eating = false
-		}
+func (player *Player) updateEatingState(t int32) {
+	if player.Eating && TimeSince(t, player.EatStartTime) >= DIRT_EAT_TIME {
+		player.Eating = false
 	}
-	return player.Eating
 }
 
 func (player *Player) incrementFrame() {
