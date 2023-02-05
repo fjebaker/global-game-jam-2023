@@ -22,7 +22,7 @@ const (
 
 	RABBIT_STARTING_HEALTH = 120 // in seconds
 	RABBIT_HURT_HEALTH     = 60  // at which point new frames used
-	RABBIT_STARVING_RATE   = 60  // in frames
+	RABBIT_STARVING_FACTOR = 10  // in frames; multiplied by tree's life bar
 	RABBIT_HEALING_AMOUNT  = 20
 )
 
@@ -98,16 +98,16 @@ func (rabbit *Rabbit) Update(t int32, player *Player, game *Game) {
 	}
 
 	// deal with slow death
-	rabbit.DieALittle(t)
+	rabbit.DieALittle(t, int32(game.TreeLife))
 	// if we died this frame, load dead assets
 	if rabbit.IsDead() {
 		rabbit.Sprite.Id = RABBIT_DEAD_FRAME
 	}
 }
 
-func (rabbit *Rabbit) DieALittle(t int32) {
+func (rabbit *Rabbit) DieALittle(t int32, treeLife int32) {
 	// every second decrease health and bump DeathClock
-	if TimeSince(t, rabbit.DeathClock) >= RABBIT_STARVING_RATE {
+	if TimeSince(t, rabbit.DeathClock) >= (RABBIT_STARVING_FACTOR * treeLife) {
 		rabbit.DeathClock = t
 		rabbit.Health = rabbit.Health - 1
 	}
