@@ -18,12 +18,16 @@ func (sprite *TimedSprite) StartShowing(t int32) {
 	sprite.Show = true
 }
 
-func (sprite *TimedSprite) Draw(t, x, y int32) {
+func (sprite *TimedSprite) Draw(x, y int32) {
+	if sprite.Show {
+		sprite.Sprite.Draw(x, y)
+	}
+}
+
+func (sprite *TimedSprite) Update(t int32) {
 	if sprite.Show {
 		if TimeSince(t, sprite.StartTime) > sprite.Duration {
 			sprite.Show = false
-			return
 		}
-		sprite.Sprite.Draw(x, y)
 	}
 }

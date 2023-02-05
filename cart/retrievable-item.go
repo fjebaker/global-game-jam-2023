@@ -16,7 +16,13 @@ const (
 	ITEM_GREEN_THING    DesireableItem = 101
 )
 
-const DESIREABLE_ITEM_NUMBER = 9
+const (
+	ITEM_FRAME_SIZE = 1
+	ITEM_SCREEN_X   = 4
+	ITEM_SCREEN_Y   = 4
+)
+
+const DESIREABLE_ITEM_COUNT = 9
 
 type RetrievableItem struct {
 	Sprite        tic80.Sprite
@@ -24,12 +30,20 @@ type RetrievableItem struct {
 	ShowInTooltip bool
 }
 
+///////////////////////////////////////////////////////////////////////////////
+// Methods
+
 func NewRetrievableItem() RetrievableItem {
 	return RetrievableItem{
-		tic80.SquareSprite(int32(ITEM_RED_MUSHROOM), 1),
+		tic80.SquareSprite(int32(ITEM_RED_MUSHROOM), ITEM_FRAME_SIZE),
 		NewThoughtBubble(),
 		false,
 	}
+}
+
+func (item *RetrievableItem) Draw() {
+	item.drawTooltip()
+	item.Bubble.Draw(&item.Sprite)
 }
 
 func (item *RetrievableItem) Id() int32 {
@@ -51,15 +65,18 @@ func (item *RetrievableItem) Update(t int32, player *Player, rabbit *Rabbit) {
 	item.Bubble.Update(t, rabbit, is_in_zone)
 }
 
-func (item *RetrievableItem) Draw(t int32) {
-	item.DrawTooltip()
-	item.Bubble.Draw(t, &item.Sprite)
+///////////////////////////////////////////////////////////////////////////////
+// Utility
+
+func (item *RetrievableItem) drawTooltip() {
+	tic80.RectangleWithBorder(2, 2, 12, 12, 0, 9)
+	if item.ShowInTooltip {
+		item.Sprite.Draw(ITEM_SCREEN_X, ITEM_SCREEN_Y)
+	}
 }
 
-// utility
-
 func newDesiredItem() DesireableItem {
-	i := RandInt(0, DESIREABLE_ITEM_NUMBER)
+	i := RandInt(0, DESIREABLE_ITEM_COUNT)
 	switch i {
 	case 0:
 		return ITEM_GREEN_MUSHROOM
@@ -82,12 +99,5 @@ func newDesiredItem() DesireableItem {
 	// just incase
 	default:
 		return ITEM_RADISH
-	}
-}
-
-func (item *RetrievableItem) DrawTooltip() {
-	tic80.RectangleWithBorder(2, 2, 12, 12, 0, 9)
-	if item.ShowInTooltip {
-		item.Sprite.Draw(4, 4)
 	}
 }

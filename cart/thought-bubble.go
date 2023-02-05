@@ -10,10 +10,9 @@ const (
 	THOUGHT_BUBBLE_BIG
 )
 
-const ITEM_OFFSET = 4
-
 const (
-	THOUGHT_BUBBLE_DELAY = 60
+	THOUGHT_BUBBLE_DELAY  = 60
+	THOUGHT_BUBBLE_OFFSET = 4
 )
 
 type ThoughtBubble struct {
@@ -33,8 +32,8 @@ func (bubble *ThoughtBubble) Update(t int32, rabbit *Rabbit, show bool) {
 	}
 	bubble.Show = show
 
-	bubble.X = rabbit.X - ITEM_OFFSET
-	bubble.Y = rabbit.Y - ITEM_OFFSET
+	bubble.X = rabbit.X - THOUGHT_BUBBLE_OFFSET
+	bubble.Y = rabbit.Y - THOUGHT_BUBBLE_OFFSET
 
 	// dT := TimeSince(t, bubble.StartTime)
 
@@ -56,7 +55,7 @@ func (bubble *ThoughtBubble) Update(t int32, rabbit *Rabbit, show bool) {
 	// }
 }
 
-func (bubble *ThoughtBubble) Draw(t int32, item *tic80.Sprite) {
+func (bubble *ThoughtBubble) Draw(item *tic80.Sprite) {
 	x_item := bubble.X
 	y_item := bubble.Y
 

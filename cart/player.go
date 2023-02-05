@@ -15,55 +15,60 @@ const (
 
 	DIRT_EAT_TIME = 10
 )
+const (
+	PLAYER_MAIN_FRAME = 256
+	PLAYER_MAIN_SIZE  = 1
+	PLAYER_DEAD_FRAME = 261
+
+	// DEBUG FRAME
+	// PLAYER_MAIN_FRAME = 336
+
+	PLAYER_MOVE_SFX      = 61
+	PLAYER_MOVE_DURATION = 8
+	PLAYER_EAT_SFX       = 63
+	PLAYER_EAT_DURATION  = 30
+	PLAYER_SOUND_CHANNEL = 3
+)
 
 type Player struct {
 	X, Y         int32
+	Speed        int32
 	Frame        int32
 	Sprite       tic80.Sprite
 	Move_fx      tic80.SoundEffect
 	Eat_fx       tic80.SoundEffect
-	Speed        int32
+	EatStartTime int32
 	Dead         bool
 	Digging      bool
 	Moving       bool
 	HasItem      bool
 	Eating       bool
-	EatStartTime int32
 }
 
 func NewPlayer(worldX, worldY int32) Player {
-	sprite := tic80.SquareSprite(258, 1)
+	sprite := tic80.SquareSprite(PLAYER_MAIN_FRAME+2, PLAYER_MAIN_SIZE)
 	sprite.Rotate = tic80.ROTATE_RIGHT
-	move_fx := tic80.NewSoundEffect(61, 3, 8)
-	eat_fx := tic80.NewSoundEffect(63, 3, 30)
+	move_fx := tic80.NewSoundEffect(
+		PLAYER_MOVE_SFX, PLAYER_SOUND_CHANNEL, PLAYER_MOVE_DURATION,
+	)
+	eat_fx := tic80.NewSoundEffect(
+		PLAYER_EAT_SFX, PLAYER_SOUND_CHANNEL, PLAYER_EAT_DURATION,
+	)
 
-	return Player{worldX, worldY, 0, sprite, move_fx, eat_fx, 4, false, false, false, false, false, 0}
+	return Player{
+		worldX, worldY,
+		4,
+		0, sprite,
+		move_fx, eat_fx,
+		0,
+		false, false, false, false, false,
+	}
 }
-
-const (
-	PLAYER_MAIN_FRAME = 256
-	// DEBUG FRAME
-	// PLAYER_MAIN_FRAME = 336
-	PLAYER_DEAD_FRAME = 261
-)
 
 ///////////////////////////////////////////////////////////////////////////////
 // Methods
 
-func (player *Player) Draw(t int32) {
-	var mod int32
-	if player.Moving {
-		if player.Speed == 1 {
-			mod = 2
-		} else {
-			mod = 5
-		}
-	} else {
-		mod = 12
-	}
-	if t%mod == 0 {
-		player.incrementFrame()
-	}
+func (player *Player) Draw() {
 	player.Sprite.Draw(PLAYER_OFFSET_X, PLAYER_OFFSET_Y)
 }
 
@@ -161,6 +166,8 @@ func (player *Player) Update(t int32, world *World, game *Game, desired *Retriev
 			player.HasItem = true
 		}
 	}
+
+	player.animate(t)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -175,6 +182,22 @@ func (player *Player) startEating(t int32) {
 func (player *Player) updateEatingState(t int32) {
 	if player.Eating && TimeSince(t, player.EatStartTime) >= DIRT_EAT_TIME {
 		player.Eating = false
+	}
+}
+
+func (player *Player) animate(t int32) {
+	var mod int32
+	if player.Moving {
+		if player.Speed == 1 {
+			mod = 2
+		} else {
+			mod = 5
+		}
+	} else {
+		mod = 12
+	}
+	if t%mod == 0 {
+		player.incrementFrame()
 	}
 }
 
