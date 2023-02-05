@@ -139,11 +139,23 @@ func (player *Player) Update(t int32, world *World, game *Game, desired *Retriev
 		return
 	}
 
-	player.updateEatingState(t, world)
-	if player.Eating {
-		return
+	// check what is infront
+	x, y := player.GetInfront()
+	tileIndex := world.GetMapTile(x, y)
+
+	// stop eating if not digging
+	if !player.Digging {
+		player.Eating = false
 	}
-	if player.Moving {
+
+	finished_eating := player.Eating && TimeSince(t, player.EatStartTime) >= player.EatTimeDelta
+	if finished_eating {
+		player.Eating = false
+		world.Dig(x, y)
+	}
+
+	// disallow movement when eating
+	if !player.Eating && player.Moving {
 		// check sfx update
 		if player.Move_fx.IsPlaying(t, OVERFLOW_MODULO_TIME) == false {
 			player.Move_fx.PlayRecordTime(t)
@@ -154,10 +166,6 @@ func (player *Player) Update(t int32, world *World, game *Game, desired *Retriev
 		}
 	}
 
-	// check what is infront
-	x, y := player.GetInfront()
-	tileIndex := world.GetMapTile(x, y)
-
 	if world.IsDeadly(tileIndex) {
 		game.ChangeState(GAME_STATE_OVER)
 		player.SetDead()
@@ -165,7 +173,7 @@ func (player *Player) Update(t int32, world *World, game *Game, desired *Retriev
 		return
 	}
 
-	if player.Digging {
+	if !player.Eating && player.Digging {
 		switch {
 		case world.IsDirt(tileIndex):
 			player.startEating(t, DIRT_EAT_TIME_DELTA)
@@ -193,29 +201,18 @@ func (player *Player) startEating(t int32, eatTimeDelta int32) {
 	player.EatTimeDelta = eatTimeDelta
 }
 
-func (player *Player) updateEatingState(t int32, world *World) {
-	if player.Eating && TimeSince(t, player.EatStartTime) >= player.EatTimeDelta {
-		x, y := player.GetInfront()
-		tileIndex := world.GetMapTile(x, y)
-		switch {
-		case world.IsDirt(tileIndex):
-			world.DigTile(x, y)
-		case world.IsTree(tileIndex):
-			world.DigTree(x, y)
-		}
-		player.Eating = false
-	}
-}
-
 func (player *Player) animate(t int32) {
 	var mod int32
-	if player.Moving {
+	switch {
+	case player.Eating:
+		mod = 1
+	case player.Moving:
 		if player.Speed == 1 {
 			mod = 2
 		} else {
 			mod = 5
 		}
-	} else {
+	default:
 		mod = 12
 	}
 	if t%mod == 0 {
